@@ -181,6 +181,30 @@ function ResultTable({ data }) {
   )
 }
 
+function SimpleBarChart({ data }) {
+  const chartData = coerceNumeric(data.slice(0, 15))
+  const keys = Object.keys(chartData[0])
+  const xKey = keys[0]
+  const yKey = keys.find((k) => typeof chartData[0][k] === 'number') || keys[1]
+  console.log('Chart keys — x:', xKey, 'y:', yKey, 'sample row:', chartData[0])
+  return (
+    <div style={{ marginBottom: '24px' }}>
+      <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '12px' }}>
+        Visualization
+      </div>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey={xKey} tick={{ fontSize: 10 }} />
+          <YAxis tick={{ fontSize: 10 }} />
+          <Tooltip contentStyle={tooltipStyle} />
+          <Bar dataKey={yKey} fill="#0071e3" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
 function exportCsv(data) {
   if (!data || data.length === 0) return
   const cols = Object.keys(data[0])
@@ -349,29 +373,7 @@ export default function QueryLab() {
               {explanation}
             </p>
 
-            {results.length > 0 && (() => {
-              const chartData = coerceNumeric(results.slice(0, 15))
-              const keys = Object.keys(chartData[0])
-              const xKey = keys[0]
-              const yKey = keys.find((k) => typeof chartData[0][k] === 'number') || keys[1]
-              console.log('Chart keys — x:', xKey, 'y:', yKey, 'sample row:', chartData[0])
-              return (
-                <div style={{ marginBottom: '24px' }}>
-                  <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '12px' }}>
-                    Visualization
-                  </div>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey={xKey} tick={{ fontSize: 10 }} />
-                      <YAxis tick={{ fontSize: 10 }} />
-                      <Tooltip contentStyle={tooltipStyle} />
-                      <Bar dataKey={yKey} fill="#0071e3" radius={[4, 4, 0, 0]} />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              )
-            })()}
+            {results.length > 0 && <SimpleBarChart data={results} />}
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
