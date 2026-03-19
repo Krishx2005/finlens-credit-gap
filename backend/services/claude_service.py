@@ -142,25 +142,11 @@ def _hash_question(question: str) -> str:
 
 def query_with_claude(question: str, db_session) -> dict:
     """Process a natural language question and return SQL results + explanation."""
-    from database import QueryCache
-
-    question_hash = _hash_question(question)
-
-    # Check cache
-    cached = db_session.query(QueryCache).filter_by(question_hash=question_hash).first()
-    if cached:
-        try:
-            results = json.loads(cached.result_preview)
-        except Exception:
-            results = []
-        return {
-            "question": question,
-            "sql": cached.sql,
-            "results": results,
-            "explanation": cached.summary,
-            "chart_type": cached.chart_type or "table",
-            "cached": True,
-        }
+    # Cache disabled — always call Claude directly
+    # from database import QueryCache
+    # question_hash = _hash_question(question)
+    # cached = db_session.query(QueryCache).filter_by(question_hash=question_hash).first()
+    # if cached: ...
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -223,22 +209,14 @@ def query_with_claude(question: str, db_session) -> dict:
     # Execute against read-only connection
     results = _execute_sql(sql)
 
-    # Cache the result
-    try:
-        cache_entry = QueryCache(
-            question_hash=question_hash,
-            question=question,
-            sql=sql,
-            summary=explanation,
-            result_preview=json.dumps(results[:20]),
-            chart_type=chart_type,
-            created_at=datetime.utcnow().isoformat(),
-        )
-        db_session.add(cache_entry)
-        db_session.commit()
-    except Exception as exc:
-        logger.warning("Failed to cache query: %s", exc)
-        db_session.rollback()
+    # Cache write disabled
+    # try:
+    #     cache_entry = QueryCache(...)
+    #     db_session.add(cache_entry)
+    #     db_session.commit()
+    # except Exception as exc:
+    #     logger.warning("Failed to cache query: %s", exc)
+    #     db_session.rollback()
 
     return {
         "question": question,
