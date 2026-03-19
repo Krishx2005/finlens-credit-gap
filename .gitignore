@@ -1,10 +1,5 @@
 .env
 backend/venv/
-backend/data/*.db-shm
-backend/data/*.db-wal
-backend/*.db
-backend/*.db-shm
-backend/*.db-wal
 backend/data/*.csv
 backend/data/*.zip
 backend/__pycache__/
