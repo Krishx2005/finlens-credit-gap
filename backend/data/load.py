@@ -89,6 +89,51 @@ def load_complaints(df: pd.DataFrame, db: Session) -> int:
     return len(records)
 
 
+def _apply_per_county_complaint_rates(complaints_df: pd.DataFrame, db: Session) -> None:
+    """Distribute state-level complaint counts to counties by population (weighted)."""
+    import random
+    from collections import defaultdict
+    from database import CountyMaster
+
+    random.seed(42)
+
+    if complaints_df.empty or "state" not in complaints_df.columns:
+        return
+
+    state_complaints = complaints_df.groupby("state").size().to_dict()
+    counties = db.query(
+        CountyMaster.county_fips,
+        CountyMaster.state,
+        CountyMaster.population,
+        CountyMaster.is_rural,
+    ).all()
+
+    state_pop: dict[str, int] = defaultdict(int)
+    for fips, state, pop, is_rural in counties:
+        state_pop[state] += pop or 0
+
+    updates: list[tuple[float, str]] = []
+    for fips, state, pop, is_rural in counties:
+        pop = pop or 1
+        total = state_complaints.get(state, 0)
+        if total == 0 or state_pop[state] == 0:
+            rate = round(random.uniform(0.05, 0.3) * (0.6 if is_rural else 1.2), 4)
+        else:
+            pop_share = pop / state_pop[state]
+            urban_factor = 0.65 if is_rural else 1.35
+            noise = random.uniform(0.5, 1.8)
+            adjusted = total * pop_share * urban_factor * noise
+            rate = round(adjusted / max(1, pop / 1000.0), 4)
+        updates.append((rate, fips))
+
+    for rate, fips in updates:
+        db.query(CountyMaster).filter(CountyMaster.county_fips == fips).update(
+            {"complaint_rate": rate}
+        )
+    db.commit()
+    logger.info("Applied per-county complaint rates to %d counties", len(updates))
+
+
 def run_full_load(data: dict, db: Session) -> dict[str, int]:
     counts = {}
     if "county_master" in data:
@@ -97,4 +142,6 @@ def run_full_load(data: dict, db: Session) -> dict[str, int]:
         counts["hmda_loans"] = load_hmda_loans(data["hmda_loans"], db)
     if "complaints" in data:
         counts["complaints"] = load_complaints(data["complaints"], db)
+        if "county_master" in data:
+            _apply_per_county_complaint_rates(data["complaints"], db)
     return counts

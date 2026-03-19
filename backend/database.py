@@ -2,7 +2,7 @@
 import os
 from pathlib import Path
 from sqlalchemy import (
-    Column, String, Float, Integer, Boolean, Text, DateTime, create_engine
+    Column, String, Float, Integer, Boolean, Text, create_engine
 )
 try:
     from sqlalchemy.orm import declarative_base
@@ -91,18 +91,6 @@ class FDICBranch(Base):
     state = Column(String(2))
     offices = Column(Integer)
 
-
-class QueryCache(Base):
-    __tablename__ = "query_cache"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    question_hash = Column(String(64), unique=True, index=True)
-    question = Column(Text)
-    sql = Column(Text)
-    summary = Column(Text)
-    result_preview = Column(Text)
-    chart_type = Column(String(50))
-    created_at = Column(String(30))
 
 
 def get_db():

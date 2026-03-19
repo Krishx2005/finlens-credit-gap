@@ -1,17 +1,13 @@
 """Anthropic Claude API service for NL-to-SQL queries."""
-import hashlib
-import json
 import logging
 import os
 import re
-from datetime import datetime
-from pathlib import Path
 
 import sqlparse
 
 logger = logging.getLogger(__name__)
 
-ALLOWED_TABLES = {"county_master", "hmda_loans", "cfpb_complaints", "fdic_branches", "query_cache"}
+ALLOWED_TABLES = {"county_master", "hmda_loans", "cfpb_complaints", "fdic_branches"}
 BLOCKED_KEYWORDS = {"INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "CREATE", "TRUNCATE", "REPLACE", "PRAGMA"}
 
 DB_SCHEMA = """
@@ -136,17 +132,9 @@ def _extract_sql_and_explanation(response_text: str) -> tuple[str, str, str]:
     return sql, explanation, chart_type
 
 
-def _hash_question(question: str) -> str:
-    return hashlib.sha256(question.lower().strip().encode()).hexdigest()
-
 
 def query_with_claude(question: str, db_session) -> dict:
     """Process a natural language question and return SQL results + explanation."""
-    # Cache disabled — always call Claude directly
-    # from database import QueryCache
-    # question_hash = _hash_question(question)
-    # cached = db_session.query(QueryCache).filter_by(question_hash=question_hash).first()
-    # if cached: ...
 
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
@@ -208,15 +196,6 @@ def query_with_claude(question: str, db_session) -> dict:
 
     # Execute against read-only connection
     results = _execute_sql(sql)
-
-    # Cache write disabled
-    # try:
-    #     cache_entry = QueryCache(...)
-    #     db_session.add(cache_entry)
-    #     db_session.commit()
-    # except Exception as exc:
-    #     logger.warning("Failed to cache query: %s", exc)
-    #     db_session.rollback()
 
     return {
         "question": question,
