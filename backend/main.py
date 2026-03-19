@@ -34,7 +34,7 @@ async def lifespan(app: FastAPI):
             counts = run_full_load(data, db)
             logger.info("Data loaded: %s", counts)
         else:
-            logger.info("Database has %d counties — skipping ingest", count)
+            logger.info("Database loaded from repo — skipping ingestion (%d counties)", count)
 
         from database import HMDALoan
         from models.alternative_score import MODEL_PATH
