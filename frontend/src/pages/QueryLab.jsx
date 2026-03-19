@@ -144,37 +144,37 @@ function ResultChart({ data }) {
 
 function ResultTable({ data }) {
   if (!data || data.length === 0) return <div style={{ fontSize: '13px', color: 'var(--text-tertiary)', padding: '16px 0' }}>No results.</div>
-  const cols = Object.keys(data[0])
   return (
-    <div style={{ overflowX: 'auto' }}>
-      <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
+    <div style={{ overflowX: 'auto', marginTop: '16px' }}>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', fontFamily: 'Inter, sans-serif' }}>
         <thead>
-          <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-            {cols.map((c) => (
-              <th key={c} style={{ textAlign: 'left', padding: '8px 12px', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', fontWeight: 500, whiteSpace: 'nowrap' }}>
-                {c}
+          <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+            {Object.keys(data[0]).map((key) => (
+              <th key={key} style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 600, color: '#6e6e73', fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.05em', whiteSpace: 'nowrap' }}>
+                {key.replace(/_/g, ' ')}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {data.slice(0, 50).map((row, i) => (
-            <tr key={i} style={{ borderBottom: '1px solid rgba(0,0,0,0.03)', transition: 'background 0.1s' }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.025)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-            >
-              {cols.map((c) => (
-                <td key={c} style={{ padding: '7px 12px', fontFamily: 'ui-monospace, monospace', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
-                  {row[c] === null || row[c] === undefined ? '—' : String(row[c])}
+          {data.slice(0, 100).map((row, i) => (
+            <tr key={i} style={{ borderBottom: '1px solid #f3f4f6', backgroundColor: i % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.01)' }}>
+              {Object.values(row).map((val, j) => (
+                <td key={j} style={{ padding: '8px 12px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
+                  {val === null || val === undefined
+                    ? '—'
+                    : typeof val === 'number'
+                      ? val % 1 === 0 ? val.toLocaleString() : val.toFixed(4)
+                      : String(val)}
                 </td>
               ))}
             </tr>
           ))}
         </tbody>
       </table>
-      {data.length > 50 && (
+      {data.length > 100 && (
         <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', padding: '8px 12px', fontFamily: 'ui-monospace, monospace' }}>
-          Showing first 50 of {data.length} rows
+          Showing first 100 of {data.length} rows
         </div>
       )}
     </div>
