@@ -5,19 +5,42 @@ import {
 } from 'recharts'
 import { runQuery, getQueryExamples, getQueryHistory } from '../api'
 
+const tooltipStyle = {
+  background: 'rgba(0,0,0,0.85)',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: '10px',
+  backdropFilter: 'blur(20px)',
+  fontSize: '12px',
+  color: 'var(--text-primary)',
+}
+
 function SqlBlock({ sql }) {
   const [open, setOpen] = useState(false)
   if (!sql) return null
   return (
-    <div className="mt-4">
+    <div style={{ marginTop: '16px' }}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="text-xs font-mono text-gray-400 hover:text-accent transition-colors flex items-center gap-1"
+        style={{ fontSize: '12px', fontFamily: 'ui-monospace, monospace', color: 'var(--text-tertiary)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', transition: 'color 0.15s' }}
+        onMouseEnter={(e) => e.currentTarget.style.color = 'var(--accent)'}
+        onMouseLeave={(e) => e.currentTarget.style.color = 'var(--text-tertiary)'}
       >
         <span>{open ? '▼' : '▶'}</span> {open ? 'Hide' : 'Show'} SQL
       </button>
       {open && (
-        <pre className="mt-2 p-4 bg-navy-950 border border-navy-700 rounded-lg text-xs font-mono text-accent overflow-x-auto whitespace-pre-wrap leading-relaxed">
+        <pre style={{
+          marginTop: '10px',
+          padding: '16px',
+          background: 'rgba(41,151,255,0.04)',
+          border: '1px solid rgba(41,151,255,0.15)',
+          borderRadius: '12px',
+          fontSize: '12px',
+          fontFamily: 'ui-monospace, monospace',
+          color: 'var(--accent)',
+          overflowX: 'auto',
+          whiteSpace: 'pre-wrap',
+          lineHeight: 1.6,
+        }}>
           {sql}
         </pre>
       )}
@@ -31,20 +54,18 @@ function ResultChart({ data, chartType }) {
   const numericKeys = keys.filter((k) => typeof data[0][k] === 'number')
   const labelKey = keys.find((k) => typeof data[0][k] === 'string') || keys[0]
   const valueKey = numericKeys[0]
-
   if (!valueKey) return null
-
   const chartData = data.slice(0, 20)
 
   if (chartType === 'line') {
     return (
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-          <XAxis dataKey={labelKey} tick={{ fill: '#9ca3af', fontSize: 10 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} axisLine={false} tickLine={false} />
-          <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px' }} />
-          <Line type="monotone" dataKey={valueKey} stroke="#3b82f6" strokeWidth={2} dot={false} />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+          <XAxis dataKey={labelKey} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+          <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+          <Tooltip contentStyle={tooltipStyle} />
+          <Line type="monotone" dataKey={valueKey} stroke="var(--accent)" strokeWidth={2} dot={false} />
         </LineChart>
       </ResponsiveContainer>
     )
@@ -54,48 +75,52 @@ function ResultChart({ data, chartType }) {
     return (
       <ResponsiveContainer width="100%" height={220}>
         <ScatterChart>
-          <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-          <XAxis dataKey={numericKeys[0]} name={numericKeys[0]} tick={{ fill: '#9ca3af', fontSize: 10 }} />
-          <YAxis dataKey={numericKeys[1]} name={numericKeys[1]} tick={{ fill: '#9ca3af', fontSize: 10 }} />
-          <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px' }} />
-          <Scatter data={chartData} fill="#3b82f6" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+          <XAxis dataKey={numericKeys[0]} name={numericKeys[0]} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} />
+          <YAxis dataKey={numericKeys[1]} name={numericKeys[1]} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} />
+          <Tooltip contentStyle={tooltipStyle} />
+          <Scatter data={chartData} fill="var(--accent)" />
         </ScatterChart>
       </ResponsiveContainer>
     )
   }
 
-  // Default: bar chart
   return (
     <ResponsiveContainer width="100%" height={220}>
-      <BarChart data={chartData} barSize={30}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#1f2937" />
-        <XAxis dataKey={labelKey} tick={{ fill: '#9ca3af', fontSize: 10 }} axisLine={false} tickLine={false} />
-        <YAxis tick={{ fill: '#9ca3af', fontSize: 10 }} axisLine={false} tickLine={false} />
-        <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1f2937', borderRadius: '8px' }} />
-        <Bar dataKey={valueKey} fill="#3b82f6" radius={[4, 4, 0, 0]} />
+      <BarChart data={chartData} barSize={28}>
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+        <XAxis dataKey={labelKey} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+        <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+        <Tooltip contentStyle={tooltipStyle} />
+        <Bar dataKey={valueKey} fill="var(--accent)" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )
 }
 
 function ResultTable({ data }) {
-  if (!data || data.length === 0) return <div className="text-sm text-gray-500 py-4">No results.</div>
+  if (!data || data.length === 0) return <div style={{ fontSize: '13px', color: 'var(--text-tertiary)', padding: '16px 0' }}>No results.</div>
   const cols = Object.keys(data[0])
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-xs">
+    <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
         <thead>
-          <tr className="border-b border-navy-700">
+          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
             {cols.map((c) => (
-              <th key={c} className="text-left px-3 py-2 text-gray-400 font-mono uppercase tracking-wider whitespace-nowrap">{c}</th>
+              <th key={c} style={{ textAlign: 'left', padding: '8px 12px', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                {c}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {data.slice(0, 50).map((row, i) => (
-            <tr key={i} className="border-b border-navy-700/40 hover:bg-navy-700/20">
+            <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', transition: 'background 0.1s' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.025)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
               {cols.map((c) => (
-                <td key={c} className="px-3 py-2 font-mono text-gray-300 whitespace-nowrap">
+                <td key={c} style={{ padding: '7px 12px', fontFamily: 'ui-monospace, monospace', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>
                   {row[c] === null || row[c] === undefined ? '—' : String(row[c])}
                 </td>
               ))}
@@ -104,7 +129,9 @@ function ResultTable({ data }) {
         </tbody>
       </table>
       {data.length > 50 && (
-        <div className="text-xs text-gray-500 px-3 py-2">Showing first 50 of {data.length} rows</div>
+        <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', padding: '8px 12px', fontFamily: 'ui-monospace, monospace' }}>
+          Showing first 50 of {data.length} rows
+        </div>
       )}
     </div>
   )
@@ -151,146 +178,183 @@ export default function QueryLab() {
     } finally {
       setLoading(false)
     }
-    // Refresh history after query, outside try so a history failure doesn't mask query errors
     getQueryHistory().then((d) => setHistory(d.history || [])).catch(() => {})
   }
 
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <div className="text-xs font-mono uppercase tracking-widest text-accent mb-2">AI Analysis</div>
-        <h1 className="text-4xl font-display font-black text-white">Query Lab</h1>
-        <p className="text-gray-400 mt-2">
-          Ask anything about US credit data in plain English.
-        </p>
-      </div>
+    <div style={{ minHeight: '100vh', padding: '48px 0 80px' }}>
+      <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px' }}>
 
-      {/* Query input */}
-      <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 mb-6">
-        <div className="flex gap-3">
-          <input
-            value={question}
-            onChange={(e) => setQuestion(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleQuery()}
-            placeholder="Ask anything about US credit data..."
-            className="flex-1 bg-navy-700 border border-navy-600 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-accent text-sm"
-          />
-          <button
-            onClick={() => handleQuery()}
-            disabled={loading || !question.trim()}
-            className="px-6 py-3 bg-accent text-white font-medium rounded-lg hover:bg-blue-400 transition-colors disabled:opacity-50 whitespace-nowrap"
-          >
-            {loading ? 'Querying…' : 'Run Query →'}
-          </button>
+        {/* Header */}
+        <div style={{ paddingTop: '48px', paddingBottom: '40px' }}>
+          <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(41,151,255,0.1)', border: '1px solid rgba(41,151,255,0.2)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
+            AI Analysis
+          </div>
+          <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text-primary)', margin: '0 0 12px' }}>
+            Query Lab
+          </h1>
+          <p style={{ fontSize: '16px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+            Ask anything about US credit data in plain English.
+          </p>
         </div>
 
-        {/* Example chips */}
-        {examples.length > 0 && (
-          <div className="mt-4">
-            <div className="text-xs text-gray-500 mb-2 font-mono uppercase tracking-wider">Example queries</div>
-            <div className="flex flex-wrap gap-2">
-              {examples.map((ex, i) => (
+        {/* Query input */}
+        <div className="glass-card" style={{ borderRadius: '20px', padding: '24px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', gap: '12px', marginBottom: examples.length > 0 ? '20px' : 0 }}>
+            <input
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleQuery()}
+              placeholder="Ask anything about US credit data…"
+              style={{
+                flex: 1,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                color: 'var(--text-primary)',
+                fontSize: '15px',
+                outline: 'none',
+              }}
+            />
+            <button
+              onClick={() => handleQuery()}
+              disabled={loading || !question.trim()}
+              style={{
+                padding: '12px 24px',
+                background: loading || !question.trim() ? 'rgba(41,151,255,0.4)' : 'var(--accent)',
+                color: '#fff',
+                fontWeight: 500,
+                fontSize: '14px',
+                border: 'none',
+                borderRadius: '12px',
+                cursor: loading || !question.trim() ? 'not-allowed' : 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {loading ? 'Querying…' : 'Run Query →'}
+            </button>
+          </div>
+
+          {examples.length > 0 && (
+            <div>
+              <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '10px' }}>
+                Example queries
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                {examples.map((ex) => (
+                  <button
+                    key={ex.id ?? ex.question}
+                    onClick={() => handleQuery(ex.question)}
+                    className="pill-btn"
+                  >
+                    {ex.question}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Error */}
+        {error && (
+          <div style={{ marginBottom: '24px', padding: '12px 16px', background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: '12px', fontSize: '13px', color: 'var(--danger)' }}>
+            {error}
+          </div>
+        )}
+
+        {/* Loading shimmer */}
+        {loading && (
+          <div className="glass-card" style={{ borderRadius: '20px', padding: '24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="shimmer" style={{ height: '14px', borderRadius: '6px', width: '70%' }} />
+              <div className="shimmer" style={{ height: '14px', borderRadius: '6px', width: '50%' }} />
+              <div className="shimmer" style={{ height: '160px', borderRadius: '10px', marginTop: '8px' }} />
+            </div>
+          </div>
+        )}
+
+        {/* Results */}
+        {result && !loading && (
+          <div className="glass-card" style={{ borderRadius: '20px', padding: '24px', marginBottom: '24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+              <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
+                Analysis
+              </div>
+              {result.cached && (
+                <span style={{ padding: '2px 10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '999px', fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'ui-monospace, monospace' }}>
+                  ↩ cached
+                </span>
+              )}
+            </div>
+
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '24px' }}>
+              {result.explanation}
+            </p>
+
+            {result.results?.length > 0 && (
+              <div style={{ marginBottom: '24px' }}>
+                <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '12px' }}>
+                  Visualization
+                </div>
+                <ResultChart data={result.results} chartType={result.chart_type} />
+              </div>
+            )}
+
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
+                  Results ({result.results?.length ?? 0} rows)
+                </div>
+                {result.results?.length > 0 && (
+                  <button
+                    onClick={() => exportCsv(result.results)}
+                    style={{ fontSize: '12px', fontFamily: 'ui-monospace, monospace', color: 'var(--accent)', background: 'none', border: '1px solid rgba(41,151,255,0.3)', borderRadius: '8px', padding: '4px 12px', cursor: 'pointer', transition: 'all 0.15s' }}
+                  >
+                    Export CSV ↓
+                  </button>
+                )}
+              </div>
+              <ResultTable data={result.results} />
+            </div>
+
+            <SqlBlock sql={result.sql} />
+          </div>
+        )}
+
+        {/* Query history */}
+        {history.length > 0 && (
+          <div className="glass-card" style={{ borderRadius: '20px', padding: '24px' }}>
+            <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '16px' }}>
+              Recent Queries
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {history.slice(0, 8).map((h, i) => (
                 <button
                   key={i}
-                  onClick={() => handleQuery(ex)}
-                  className="px-3 py-1.5 bg-navy-700 border border-navy-600 text-xs text-gray-300 rounded-full hover:border-accent hover:text-accent transition-colors"
+                  onClick={() => handleQuery(h.question)}
+                  style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '10px 12px', borderRadius: '10px', background: 'none', border: 'none', cursor: 'pointer', transition: 'background 0.1s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
                 >
-                  {ex}
+                  <span style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', color: 'var(--text-tertiary)', marginTop: '2px', minWidth: '24px' }}>#{i + 1}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {h.question}
+                    </div>
+                    {h.created_at && (
+                      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'ui-monospace, monospace', marginTop: '2px' }}>
+                        {new Date(h.created_at).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
                 </button>
               ))}
             </div>
           </div>
         )}
       </div>
-
-      {/* Error */}
-      {error && (
-        <div className="mb-6 px-4 py-3 bg-danger/10 border border-danger/30 rounded-lg text-sm text-danger">
-          {error}
-        </div>
-      )}
-
-      {/* Loading skeleton */}
-      {loading && (
-        <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 animate-pulse">
-          <div className="h-4 bg-navy-700 rounded w-3/4 mb-3" />
-          <div className="h-4 bg-navy-700 rounded w-1/2 mb-6" />
-          <div className="h-40 bg-navy-700 rounded" />
-        </div>
-      )}
-
-      {/* Results */}
-      {result && !loading && (
-        <div className="bg-navy-800 border border-navy-700 rounded-xl p-6 mb-6">
-          {/* Explanation */}
-          <div className="mb-5">
-            <div className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-2">Analysis</div>
-            <p className="text-gray-200 text-sm leading-relaxed">{result.explanation}</p>
-          </div>
-
-          {/* Chart */}
-          {result.results?.length > 0 && (
-            <div className="mb-5">
-              <div className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-3">
-                Visualization
-                <span className="ml-2 text-navy-600 normal-case tracking-normal font-sans">{result.chart_type}</span>
-              </div>
-              <ResultChart data={result.results} chartType={result.chart_type} />
-            </div>
-          )}
-
-          {/* SQL */}
-          <SqlBlock sql={result.sql} />
-
-          {/* Table */}
-          <div className="mt-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-xs font-mono uppercase tracking-wider text-gray-400">
-                Results ({result.results?.length ?? 0} rows)
-              </div>
-              {result.results?.length > 0 && (
-                <button
-                  onClick={() => exportCsv(result.results)}
-                  className="text-xs font-mono text-accent hover:text-blue-300 transition-colors border border-accent/30 px-3 py-1 rounded-lg"
-                >
-                  Export CSV ↓
-                </button>
-              )}
-            </div>
-            <ResultTable data={result.results} />
-          </div>
-
-          {result.cached && (
-            <div className="mt-3 text-xs text-gray-500 font-mono">↩ cached result</div>
-          )}
-        </div>
-      )}
-
-      {/* Query history */}
-      {history.length > 0 && (
-        <div className="bg-navy-800 border border-navy-700 rounded-xl p-5">
-          <div className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-3">Recent Queries</div>
-          <div className="space-y-2">
-            {history.slice(0, 8).map((h, i) => (
-              <button
-                key={i}
-                onClick={() => handleQuery(h.question)}
-                className="w-full text-left flex items-start gap-3 px-3 py-2 rounded-lg hover:bg-navy-700 transition-colors group"
-              >
-                <span className="text-gray-600 font-mono text-xs mt-0.5">#{i + 1}</span>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-gray-300 truncate group-hover:text-white">{h.question}</div>
-                  {h.created_at && (
-                    <div className="text-xs text-gray-600 font-mono mt-0.5">
-                      {new Date(h.created_at).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

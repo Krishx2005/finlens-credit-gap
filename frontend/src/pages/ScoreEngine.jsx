@@ -1,51 +1,170 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell
 } from 'recharts'
 import ScoreGauge from '../components/ScoreGauge'
-import { calculateScore, getDemoScores } from '../api'
+import { calculateScore, getDemoScores, getAllCounties } from '../api'
 
-const COUNTIES = [
-  { fips: '06037', name: 'Los Angeles, CA' },
-  { fips: '06085', name: 'Santa Clara, CA' },
-  { fips: '36061', name: 'New York County, NY' },
-  { fips: '17031', name: 'Cook County, IL' },
-  { fips: '48201', name: 'Harris County, TX' },
-  { fips: '04013', name: 'Maricopa, AZ' },
-  { fips: '53033', name: 'King County, WA' },
-  { fips: '30031', name: 'Gallatin, MT (Rural)' },
-  { fips: '56021', name: 'Laramie, WY (Rural)' },
-  { fips: '28049', name: 'Hinds, MS (Rural)' },
-  { fips: '20161', name: 'Riley, KS (Rural)' },
-  { fips: '01001', name: 'Autauga, AL (Rural)' },
-  { fips: '23005', name: 'Cumberland, ME (Rural)' },
-]
+function CountySearch({ counties, value, onChange }) {
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
+  const containerRef = useRef(null)
 
-function ScoreBreakdownBar({ label, value, contribution }) {
-  const isPositive = contribution >= 0
+  const selected = counties.find((c) => c.fips === value)
+  useEffect(() => {
+    if (selected) setQuery(selected.label)
+  }, [value, counties.length])
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false)
+        if (selected) setQuery(selected.label)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [selected])
+
+  const filtered = query.length < 2
+    ? []
+    : counties.filter((c) => c.label.toLowerCase().includes(query.toLowerCase())).slice(0, 60)
+
+  const handleSelect = (county) => {
+    setQuery(county.label)
+    setOpen(false)
+    onChange(county.fips)
+  }
+
   return (
-    <div className="mb-3">
-      <div className="flex justify-between text-xs text-gray-400 mb-1">
-        <span>{label}</span>
-        <span className={isPositive ? 'text-positive' : 'text-danger'}>
+    <div ref={containerRef} className="relative">
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => { setQuery(e.target.value); setOpen(true) }}
+        onFocus={() => { if (query.length >= 2) setOpen(true) }}
+        placeholder="Type to search counties…"
+        style={{
+          width: '100%',
+          background: 'rgba(255,255,255,0.05)',
+          border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '10px',
+          padding: '10px 14px',
+          color: 'var(--text-primary)',
+          fontSize: '14px',
+          outline: 'none',
+          transition: 'border-color 0.15s ease',
+        }}
+        onFocus_extra={(e) => { e.target.style.borderColor = 'var(--accent)' }}
+        onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)' }}
+      />
+      {open && filtered.length > 0 && (
+        <ul
+          className="absolute z-50 w-full mt-1 max-h-56 overflow-y-auto"
+          style={{
+            background: '#1a1a1a',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '10px',
+            boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+          }}
+        >
+          {filtered.map((c) => (
+            <li
+              key={c.fips}
+              onMouseDown={() => handleSelect(c)}
+              style={{
+                padding: '8px 14px',
+                fontSize: '13px',
+                cursor: 'pointer',
+                color: c.fips === value ? 'var(--accent)' : 'var(--text-secondary)',
+                transition: 'background 0.1s ease',
+              }}
+              onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.05)'; e.target.style.color = 'var(--text-primary)' }}
+              onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = c.fips === value ? 'var(--accent)' : 'var(--text-secondary)' }}
+            >
+              {c.label}
+            </li>
+          ))}
+        </ul>
+      )}
+      {open && query.length >= 2 && filtered.length === 0 && (
+        <div
+          className="absolute z-50 w-full mt-1"
+          style={{
+            background: '#1a1a1a',
+            border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: '10px',
+            padding: '12px 14px',
+            fontSize: '13px',
+            color: 'var(--text-tertiary)',
+          }}
+        >
+          No counties found
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ScoreBreakdownBar({ label, value, contribution, index }) {
+  const isPositive = contribution >= 0
+  const color = isPositive ? 'var(--accent)' : 'var(--danger)'
+
+  return (
+    <div style={{ marginBottom: '14px', animationDelay: `${index * 80}ms` }} className="animate-on-scroll">
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{label}</span>
+        <span style={{ fontSize: '12px', fontFamily: 'ui-monospace, monospace', color }}>
           {isPositive ? '+' : ''}{contribution.toFixed(1)}%
         </span>
       </div>
-      <div className="w-full bg-navy-700 rounded-full h-2">
+      <div style={{ width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: '999px', height: '4px' }}>
         <div
-          className={`h-2 rounded-full transition-all duration-700 ${isPositive ? 'bg-accent' : 'bg-danger'}`}
-          style={{ width: `${Math.min(100, Math.abs(contribution))}%` }}
+          style={{
+            height: '4px',
+            borderRadius: '999px',
+            background: color,
+            width: `${Math.min(100, Math.abs(contribution))}%`,
+            transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+          }}
         />
       </div>
     </div>
   )
 }
 
+function InputField({ label, hint, children }) {
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '8px' }}>
+        <label style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
+          {label}
+        </label>
+        {hint && <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>{hint}</span>}
+      </div>
+      {children}
+    </div>
+  )
+}
+
+const inputStyle = {
+  width: '100%',
+  background: 'rgba(255,255,255,0.05)',
+  border: '1px solid rgba(255,255,255,0.1)',
+  borderRadius: '10px',
+  padding: '10px 14px',
+  color: 'var(--text-primary)',
+  fontSize: '14px',
+  outline: 'none',
+  appearance: 'none',
+  WebkitAppearance: 'none',
+}
+
 export default function ScoreEngine() {
   const [form, setForm] = useState({
     income: '',
     loan_amount: '',
-    county_fips: '06037',
+    county_fips: '',
     age_bracket: '26-35',
     employment_type: 'employed',
   })
@@ -53,9 +172,18 @@ export default function ScoreEngine() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [demos, setDemos] = useState([])
+  const [counties, setCounties] = useState([])
 
   useEffect(() => {
     getDemoScores().then((d) => setDemos(d.profiles || [])).catch(() => {})
+    getAllCounties().then((d) => {
+      const list = (d.counties || []).map((c) => ({
+        fips: c.county_fips,
+        label: `${c.county_name.split(',')[0]}, ${c.state}`,
+      }))
+      list.sort((a, b) => a.label.localeCompare(b.label))
+      setCounties(list)
+    }).catch(() => {})
   }, [])
 
   const handleSubmit = async (e) => {
@@ -85,196 +213,332 @@ export default function ScoreEngine() {
         name: val.label,
         value: Math.abs(val.contribution),
         contribution: val.contribution,
-        fill: val.contribution >= 0 ? '#3b82f6' : '#ef4444',
+        fill: val.contribution >= 0 ? 'var(--accent)' : 'var(--danger)',
       }))
     : []
 
+  const scoreGrade = result
+    ? result.alternative_score >= 750 ? 'A' : result.alternative_score >= 650 ? 'B' :
+      result.alternative_score >= 550 ? 'C' : result.alternative_score >= 450 ? 'D' : 'F'
+    : null
+
+  const ficoGrade = result
+    ? result.fico_estimate >= 750 ? 'A' : result.fico_estimate >= 650 ? 'B' :
+      result.fico_estimate >= 550 ? 'C' : result.fico_estimate >= 450 ? 'D' : 'F'
+    : null
+
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <div className="text-xs font-mono uppercase tracking-widest text-accent mb-2">Score Engine</div>
-        <h1 className="text-4xl font-display font-black text-white">Alternative Credit Score</h1>
-        <p className="text-gray-400 mt-2">
-          Scored on structural access, not history. Enter your profile to see what FICO misses.
-        </p>
-      </div>
+    <div style={{ minHeight: '100vh', padding: '48px 0 80px' }}>
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        {/* Form */}
-        <div className="bg-navy-800 rounded-xl p-6 border border-navy-700">
-          <h2 className="font-display font-semibold text-white mb-5">Applicant Profile</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Annual Income ($)</label>
-              <input
-                type="number"
-                value={form.income}
-                onChange={(e) => setForm({ ...form, income: e.target.value })}
-                placeholder="52000"
-                className="w-full bg-navy-700 border border-navy-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-accent"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Loan Amount ($)</label>
-              <input
-                type="number"
-                value={form.loan_amount}
-                onChange={(e) => setForm({ ...form, loan_amount: e.target.value })}
-                placeholder="220000"
-                className="w-full bg-navy-700 border border-navy-600 rounded-lg px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-accent"
-              />
-            </div>
-            <div>
-              <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">County</label>
-              <select
-                value={form.county_fips}
-                onChange={(e) => setForm({ ...form, county_fips: e.target.value })}
-                className="w-full bg-navy-700 border border-navy-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-accent"
+        {/* Header */}
+        <div style={{ paddingTop: '48px', paddingBottom: '48px' }}>
+          <div
+            style={{
+              display: 'inline-block',
+              fontSize: '11px',
+              fontFamily: 'ui-monospace, monospace',
+              letterSpacing: '0.1em',
+              textTransform: 'uppercase',
+              color: 'var(--accent)',
+              background: 'rgba(41,151,255,0.1)',
+              border: '1px solid rgba(41,151,255,0.2)',
+              padding: '4px 12px',
+              borderRadius: '999px',
+              marginBottom: '20px',
+            }}
+          >
+            Score Engine
+          </div>
+          <h1
+            style={{
+              fontSize: 'clamp(2rem, 4vw, 3rem)',
+              fontWeight: 700,
+              letterSpacing: '-0.03em',
+              color: 'var(--text-primary)',
+              margin: '0 0 12px',
+            }}
+          >
+            Alternative Credit Score
+          </h1>
+          <p style={{ fontSize: '16px', color: 'var(--text-secondary)', maxWidth: '520px', lineHeight: 1.6 }}>
+            Scored on structural access, not history. Enter your profile to see what FICO misses.
+          </p>
+        </div>
+
+        {/* Main 2-col layout */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '80px' }}>
+
+          {/* Form card */}
+          <div
+            className="glass-card"
+            style={{ borderRadius: '20px', padding: '32px' }}
+          >
+            <h2 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '24px', marginTop: 0 }}>
+              Applicant Profile
+            </h2>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+              <InputField label="Annual Income" hint="USD">
+                <input
+                  type="number"
+                  value={form.income}
+                  onChange={(e) => setForm({ ...form, income: e.target.value })}
+                  placeholder="52,000"
+                  style={inputStyle}
+                />
+              </InputField>
+
+              <InputField label="Loan Amount" hint="USD">
+                <input
+                  type="number"
+                  value={form.loan_amount}
+                  onChange={(e) => setForm({ ...form, loan_amount: e.target.value })}
+                  placeholder="220,000"
+                  style={inputStyle}
+                />
+              </InputField>
+
+              <InputField
+                label="County"
+                hint={counties.length > 0 ? `${counties.length.toLocaleString()} available` : undefined}
               >
-                {COUNTIES.map(({ fips, name }) => (
-                  <option key={fips} value={fips}>{name}</option>
-                ))}
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Age Bracket</label>
-                <select
-                  value={form.age_bracket}
-                  onChange={(e) => setForm({ ...form, age_bracket: e.target.value })}
-                  className="w-full bg-navy-700 border border-navy-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-accent"
-                >
-                  {['18-25', '26-35', '36-50', '51-65', '65+'].map((b) => (
-                    <option key={b} value={b}>{b}</option>
-                  ))}
-                </select>
+                <CountySearch
+                  counties={counties}
+                  value={form.county_fips}
+                  onChange={(fips) => setForm({ ...form, county_fips: fips })}
+                />
+              </InputField>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <InputField label="Age Bracket">
+                  <select
+                    value={form.age_bracket}
+                    onChange={(e) => setForm({ ...form, age_bracket: e.target.value })}
+                    style={inputStyle}
+                  >
+                    {['18-25', '26-35', '36-50', '51-65', '65+'].map((b) => (
+                      <option key={b} value={b} style={{ background: '#1a1a1a' }}>{b}</option>
+                    ))}
+                  </select>
+                </InputField>
+                <InputField label="Employment">
+                  <select
+                    value={form.employment_type}
+                    onChange={(e) => setForm({ ...form, employment_type: e.target.value })}
+                    style={inputStyle}
+                  >
+                    {[
+                      ['employed', 'Employed'],
+                      ['self_employed', 'Self-Employed'],
+                      ['part_time', 'Part-Time'],
+                      ['gig_worker', 'Gig Worker'],
+                      ['retired', 'Retired'],
+                    ].map(([val, label]) => (
+                      <option key={val} value={val} style={{ background: '#1a1a1a' }}>{label}</option>
+                    ))}
+                  </select>
+                </InputField>
               </div>
-              <div>
-                <label className="text-xs text-gray-400 uppercase tracking-wider mb-1 block">Employment</label>
-                <select
-                  value={form.employment_type}
-                  onChange={(e) => setForm({ ...form, employment_type: e.target.value })}
-                  className="w-full bg-navy-700 border border-navy-600 rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-accent"
+
+              {error && (
+                <div style={{ fontSize: '13px', color: 'var(--danger)', padding: '10px 14px', background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: '10px' }}>
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: loading ? 'rgba(41,151,255,0.5)' : 'var(--accent)',
+                  color: '#fff',
+                  fontWeight: 500,
+                  fontSize: '14px',
+                  border: 'none',
+                  borderRadius: '10px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'all 0.15s ease',
+                  letterSpacing: '-0.01em',
+                }}
+              >
+                {loading ? 'Calculating…' : 'Calculate Alternative Score →'}
+              </button>
+            </form>
+          </div>
+
+          {/* Results card */}
+          <div
+            className="glass-card"
+            style={{ borderRadius: '20px', padding: '32px', display: 'flex', flexDirection: 'column' }}
+          >
+            {result ? (
+              <>
+                {/* Score gauges */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <ScoreGauge score={result.alternative_score} grade={scoreGrade} label="Alternative Score" />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <ScoreGauge score={result.fico_estimate} grade={ficoGrade} label="FICO Estimate" />
+                  </div>
+                </div>
+
+                {/* Score gap */}
+                <div
+                  style={{
+                    borderRadius: '12px',
+                    padding: '16px',
+                    marginBottom: '20px',
+                    background: result.score_gap > 0 ? 'rgba(48,209,88,0.07)' : 'rgba(255,69,58,0.07)',
+                    border: `1px solid ${result.score_gap > 0 ? 'rgba(48,209,88,0.2)' : 'rgba(255,69,58,0.2)'}`,
+                  }}
                 >
-                  {[
-                    ['employed', 'Employed'],
-                    ['self_employed', 'Self-Employed'],
-                    ['part_time', 'Part-Time'],
-                    ['gig_worker', 'Gig Worker'],
-                    ['retired', 'Retired'],
-                  ].map(([val, label]) => (
-                    <option key={val} value={val}>{label}</option>
+                  <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '6px' }}>
+                    Score Gap
+                  </div>
+                  <div style={{ fontSize: '28px', fontWeight: 700, letterSpacing: '-0.03em', color: result.score_gap > 0 ? 'var(--positive)' : 'var(--danger)' }}>
+                    {result.score_gap > 0 ? '+' : ''}{result.score_gap} pts
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                    {result.score_gap > 0
+                      ? 'FICO undervalues this applicant vs structural indicators'
+                      : 'Traditional scoring rates this profile higher'}
+                  </div>
+                </div>
+
+                {/* Explanation */}
+                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '20px' }}>
+                  {result.explanation}
+                </div>
+
+                {/* Breakdown bars */}
+                <div style={{ marginBottom: '20px' }}>
+                  <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '14px' }}>
+                    Score Breakdown
+                  </div>
+                  {breakdownData.map((d, i) => (
+                    <ScoreBreakdownBar key={d.name} label={d.name} value={d.value} contribution={d.contribution} index={i} />
                   ))}
-                </select>
+                </div>
+
+                {/* Approval probability */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: 'auto' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Approval Probability</span>
+                  <div style={{ flex: 1, background: 'rgba(255,255,255,0.06)', borderRadius: '999px', height: '4px' }}>
+                    <div
+                      style={{
+                        height: '4px',
+                        borderRadius: '999px',
+                        background: 'var(--accent)',
+                        width: `${result.approval_probability * 100}%`,
+                        transition: 'width 0.8s cubic-bezier(0.16, 1, 0.3, 1)',
+                      }}
+                    />
+                  </div>
+                  <span style={{ fontSize: '12px', fontFamily: 'ui-monospace, monospace', color: 'var(--accent)', minWidth: '36px', textAlign: 'right' }}>
+                    {(result.approval_probability * 100).toFixed(0)}%
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '48px 0' }}>
+                <div
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: 'rgba(41,151,255,0.08)',
+                    border: '1px solid rgba(41,151,255,0.15)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '24px',
+                  }}
+                >
+                  ◎
+                </div>
+                <div style={{ fontSize: '14px', color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: 1.5 }}>
+                  Enter your profile to see<br />your alternative credit score
+                </div>
               </div>
-            </div>
-            {error && <div className="text-danger text-sm">{error}</div>}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-accent text-white font-medium rounded-lg hover:bg-blue-400 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Calculating...' : 'Calculate Alternative Score →'}
-            </button>
-          </form>
+            )}
+          </div>
         </div>
 
-        {/* Result */}
-        <div className="bg-navy-800 rounded-xl p-6 border border-navy-700 flex flex-col">
-          {result ? (
-            <>
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="flex flex-col items-center">
-                  <ScoreGauge score={result.alternative_score} grade={result.grade} label="Alternative Score" />
-                </div>
-                <div className="flex flex-col items-center">
-                  <ScoreGauge score={result.fico_estimate} grade={
-                    result.fico_estimate >= 750 ? 'A' : result.fico_estimate >= 650 ? 'B' :
-                    result.fico_estimate >= 550 ? 'C' : result.fico_estimate >= 450 ? 'D' : 'F'
-                  } label="FICO Estimate" />
-                </div>
+        {/* Demo profiles */}
+        {demos.length > 0 && (
+          <section>
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '8px' }}>
+                Contrasting Profiles
               </div>
-
-              {/* Score gap callout */}
-              <div className={`rounded-lg p-4 mb-4 border ${result.score_gap > 0 ? 'bg-positive/5 border-positive/20' : 'bg-danger/5 border-danger/20'}`}>
-                <div className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-1">Score Gap</div>
-                <div className={`text-2xl font-display font-bold ${result.score_gap > 0 ? 'text-positive' : 'text-danger'}`}>
-                  {result.score_gap > 0 ? '+' : ''}{result.score_gap} points
-                </div>
-                <div className="text-xs text-gray-400 mt-1">
-                  {result.score_gap > 0
-                    ? 'FICO undervalues this applicant vs structural indicators'
-                    : 'Traditional scoring rates this profile higher'}
-                </div>
-              </div>
-
-              <div className="text-xs text-gray-300 mb-4 leading-relaxed">{result.explanation}</div>
-
-              <div>
-                <div className="text-xs font-mono uppercase tracking-wider text-gray-400 mb-3">Score Breakdown</div>
-                {breakdownData.map((d) => (
-                  <ScoreBreakdownBar key={d.name} label={d.name} value={d.value} contribution={d.contribution} />
-                ))}
-              </div>
-
-              <div className="mt-4 flex items-center gap-3">
-                <div className="text-xs text-gray-400">Approval Probability</div>
-                <div className="flex-1 bg-navy-700 rounded-full h-2">
-                  <div
-                    className="h-2 rounded-full bg-accent"
-                    style={{ width: `${result.approval_probability * 100}%` }}
-                  />
-                </div>
-                <div className="text-xs font-mono text-accent">
-                  {(result.approval_probability * 100).toFixed(0)}%
-                </div>
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500">
-              <div className="text-6xl mb-4">⊕</div>
-              <div className="text-sm">Enter your profile to see your alternative score</div>
+              <h2 style={{ fontSize: '22px', fontWeight: 600, letterSpacing: '-0.02em', color: 'var(--text-primary)', margin: 0 }}>
+                The Gap in Practice
+              </h2>
             </div>
-          )}
-        </div>
-      </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
+              {demos.map((profile, i) => (
+                <div
+                  key={i}
+                  className="glass-card card-hover animate-on-scroll"
+                  style={{
+                    borderRadius: '16px',
+                    padding: '20px',
+                    animationDelay: `${i * 60}ms`,
+                  }}
+                >
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
+                    {profile.label}
+                  </div>
 
-      {/* Demo profiles */}
-      {demos.length > 0 && (
-        <section>
-          <h2 className="text-xs font-mono uppercase tracking-widest text-gray-400 mb-4">
-            Contrasting Profiles — The Gap in Practice
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {demos.map((profile, i) => (
-              <div key={i} className="bg-navy-800 border border-navy-700 rounded-xl p-4">
-                <div className="text-sm font-display font-semibold text-white mb-3">
-                  {profile.label}
-                </div>
-                <div className="flex gap-4 mb-3">
-                  <div className="text-center">
-                    <div className="text-xs text-gray-400 mb-1">Alt Score</div>
-                    <div className="text-xl font-display font-bold text-accent">{profile.alternative_score}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xs text-gray-400 mb-1">FICO Est.</div>
-                    <div className="text-xl font-display font-bold text-gray-300">{profile.fico_estimate}</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-xs text-gray-400 mb-1">Gap</div>
-                    <div className={`text-xl font-display font-bold ${profile.score_gap > 0 ? 'text-positive' : 'text-danger'}`}>
-                      {profile.score_gap > 0 ? '+' : ''}{profile.score_gap}
+                  <div style={{ display: 'flex', gap: '20px', marginBottom: '16px' }}>
+                    <div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '4px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Alt Score</div>
+                      <div style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--accent)' }}>{profile.alternative_score}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '4px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.06em', textTransform: 'uppercase' }}>FICO Est.</div>
+                      <div style={{ fontSize: '22px', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text-secondary)' }}>{profile.fico_estimate}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '4px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Gap</div>
+                      <div style={{
+                        fontSize: '22px', fontWeight: 700, letterSpacing: '-0.03em',
+                        color: profile.score_gap > 0 ? 'var(--positive)' : 'var(--danger)'
+                      }}>
+                        {profile.score_gap > 0 ? '+' : ''}{profile.score_gap}
+                      </div>
                     </div>
                   </div>
+
+                  {/* Score gap bar */}
+                  <div style={{ marginBottom: '12px' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '999px', height: '3px', position: 'relative' }}>
+                      <div style={{
+                        position: 'absolute',
+                        left: `${(profile.fico_estimate / 850) * 100}%`,
+                        top: '-1px',
+                        width: `${Math.abs(profile.score_gap / 850) * 100}%`,
+                        height: '5px',
+                        borderRadius: '999px',
+                        background: profile.score_gap > 0 ? 'var(--positive)' : 'var(--danger)',
+                        transition: 'width 0.6s ease',
+                      }} />
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
+                    {profile.is_rural ? '⬡ Rural' : '▣ Urban'} · {profile.county_name}
+                  </div>
                 </div>
-                <div className="text-xs text-gray-500">
-                  {profile.is_rural ? '🌾 Rural' : '🏙 Urban'} · {profile.county_name}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
     </div>
   )
 }
