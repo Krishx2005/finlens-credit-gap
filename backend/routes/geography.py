@@ -32,14 +32,12 @@ def _county_to_dict(c: CountyMaster) -> dict:
 
 @router.get("/counties")
 def get_all_counties(db: Session = Depends(get_db)):
-    """Return all counties with disparity metrics."""
     counties = db.query(CountyMaster).all()
     return {"counties": [_county_to_dict(c) for c in counties], "total": len(counties)}
 
 
 @router.get("/county/{fips}")
 def get_county(fips: str, db: Session = Depends(get_db)):
-    """Return full profile for one county."""
     if len(fips) != 5 or not fips.isdigit():
         raise HTTPException(status_code=422, detail="FIPS code must be 5 digits")
     county = db.query(CountyMaster).filter_by(county_fips=fips).first()
@@ -85,23 +83,33 @@ def get_credit_deserts(db: Session = Depends(get_db)):
 
 @router.get("/summary")
 def get_geographic_summary(db: Session = Depends(get_db)):
-    """Return national-level summary statistics."""
     counties = db.query(CountyMaster).all()
     if not counties:
         return {}
 
-    rural = [c for c in counties if c.is_rural]
-    urban = [c for c in counties if not c.is_rural]
+    rural = [c for c in counties if c.population is not None and c.population < 50000]
+    urban = [c for c in counties if c.population is not None and c.population >= 50000]
     deserts = [c for c in counties if c.credit_desert]
 
     def avg(items, attr):
         vals = [getattr(i, attr) for i in items if getattr(i, attr) is not None]
         return round(sum(vals) / len(vals), 2) if vals else 0
 
+    def avg_raw(items, attr):
+        vals = [getattr(i, attr) for i in items if getattr(i, attr) is not None]
+        return sum(vals) / len(vals) if vals else 0.0
+
     rural_denial = avg(rural, "loan_denial_rate")
     urban_denial = avg(urban, "loan_denial_rate")
     rural_score = avg(rural, "alternative_score_avg")
     urban_score = avg(urban, "alternative_score_avg")
+
+    rural_denial_raw = avg_raw(rural, "loan_denial_rate")
+    urban_denial_raw = avg_raw(urban, "loan_denial_rate")
+    if urban_denial_raw > 0:
+        premium = round((rural_denial_raw - urban_denial_raw) / urban_denial_raw * 100, 1)
+    else:
+        premium = 0.0
 
     return {
         "total_counties": len(counties),
@@ -110,7 +118,7 @@ def get_geographic_summary(db: Session = Depends(get_db)):
         "urban_counties": len(urban),
         "avg_denial_rate_rural": rural_denial,
         "avg_denial_rate_urban": urban_denial,
-        "rural_denial_premium": round(rural_denial - urban_denial, 4),
+        "rural_denial_premium": premium,
         "avg_alternative_score_rural": rural_score,
         "avg_alternative_score_urban": urban_score,
         "avg_score_gap_rural": avg(rural, "score_gap"),

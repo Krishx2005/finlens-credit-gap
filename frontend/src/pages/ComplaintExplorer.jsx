@@ -164,7 +164,6 @@ export default function ComplaintExplorer() {
     <div style={{ minHeight: '100vh', padding: '48px 0 80px' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
 
-        {/* Header */}
         <div style={{ paddingTop: '48px', paddingBottom: '40px' }}>
           <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(0,113,227,0.08)', border: '1px solid rgba(0,113,227,0.15)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
             CFPB Data
@@ -183,7 +182,6 @@ export default function ComplaintExplorer() {
           </div>
         )}
 
-        {/* KPIs */}
         {summary && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '32px' }}>
             <KpiCard label="Total Complaints" value={summary.total_complaints?.toLocaleString()} />
@@ -193,7 +191,6 @@ export default function ComplaintExplorer() {
           </div>
         )}
 
-        {/* Charts row 1 */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
           <ChartCard title="Top 10 Companies by Volume" subtitle="Largest complaint recipients">
             {topCompanies.length > 0 ? (
@@ -224,7 +221,6 @@ export default function ComplaintExplorer() {
           </ChartCard>
         </div>
 
-        {/* Charts row 2 */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '32px' }}>
           <ChartCard title="Issues by Category" subtitle="Size = complaint volume">
             {issueTreemap.length > 0 ? (
@@ -276,7 +272,6 @@ export default function ComplaintExplorer() {
           </ChartCard>
         </div>
 
-        {/* Filter bar */}
         <div
           className="glass-card"
           style={{ borderRadius: '16px', padding: '16px 20px', marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '16px', alignItems: 'flex-end' }}
@@ -313,7 +308,6 @@ export default function ComplaintExplorer() {
           </div>
         )}
 
-        {/* Complaints table */}
         <div className="glass-card" style={{ borderRadius: '16px', overflow: 'hidden' }}>
           <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
             <thead>

@@ -77,7 +77,6 @@ export default function Reports() {
     <div style={{ minHeight: '100vh', padding: '48px 0 80px' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
 
-        {/* Header */}
         <div style={{ paddingTop: '48px', paddingBottom: '40px' }}>
           <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(0,113,227,0.08)', border: '1px solid rgba(0,113,227,0.15)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
             Export
@@ -92,7 +91,6 @@ export default function Reports() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '24px', alignItems: 'start' }}>
 
-          {/* Config panel */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div className="glass-card" style={{ borderRadius: '20px', padding: '20px' }}>
               <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '16px' }}>
@@ -175,7 +173,6 @@ export default function Reports() {
             </div>
           </div>
 
-          {/* Preview panel */}
           <div className="glass-card" style={{ borderRadius: '20px', padding: '28px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
               <div>
@@ -189,7 +186,6 @@ export default function Reports() {
               </div>
             </div>
 
-            {/* Report preview doc */}
             <div
               style={{
                 background: 'rgba(0,0,0,0.025)',
@@ -200,7 +196,6 @@ export default function Reports() {
                 fontSize: '12px',
               }}
             >
-              {/* Doc header */}
               <div style={{ borderBottom: '1px solid rgba(0,0,0,0.06)', paddingBottom: '16px', marginBottom: '20px' }}>
                 <div style={{ fontSize: '15px', fontWeight: 700, color: reportType?.color, marginBottom: '6px' }}>
                   FinLens — {reportType?.label}
@@ -254,7 +249,6 @@ export default function Reports() {
                 </div>
               )}
 
-              {/* Sections */}
               <div style={{ marginTop: '20px' }}>
                 <div style={{ fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '10px' }}>
                   Report Sections
@@ -269,13 +263,11 @@ export default function Reports() {
                 </div>
               </div>
 
-              {/* Footer */}
               <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.06)', fontSize: '11px', color: 'var(--text-tertiary)', lineHeight: 1.6 }}>
                 This report is based on publicly available federal datasets and does not constitute financial advice.
               </div>
             </div>
 
-            {/* Section badges */}
             <div style={{ marginTop: '20px' }}>
               <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '12px' }}>
                 Included Sections

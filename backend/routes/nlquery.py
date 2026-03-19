@@ -1,4 +1,12 @@
 """Natural language to SQL query routes."""
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent.parent / ".env")
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
@@ -16,20 +24,17 @@ class QueryRequest(BaseModel):
 
 @router.post("")
 def run_nl_query(request: QueryRequest, db: Session = Depends(get_db)):
-    """Process a natural language question against the FinLens database."""
     result = query_with_claude(request.question, db)
     return result
 
 
 @router.get("/examples")
 def get_example_queries():
-    """Return curated example queries with pre-computed results."""
     return {"examples": EXAMPLE_QUERIES}
 
 
 @router.get("/history")
 def get_query_history(db: Session = Depends(get_db), limit: int = 20):
-    """Return recent cached queries (anonymized)."""
     recent = (
         db.query(QueryCache)
         .order_by(QueryCache.id.desc())

@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-load_dotenv(Path(__file__).parent.parent / ".env")
+load_dotenv(Path(__file__).parent / ".env")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s — %(message)s")
 logger = logging.getLogger(__name__)
@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Initialize database and seed data on startup."""
     from database import init_db, SessionLocal
     from data.ingest import ingest_all, get_sources_status
     from data.load import run_full_load
@@ -64,7 +63,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS — allow frontend origins
 allowed_origins = [
     "http://localhost:5173",
     "http://localhost:3000",
@@ -80,7 +78,6 @@ app.add_middleware(
     allow_headers=["Content-Type", "Authorization"],
 )
 
-# Register routers
 from routes.scores import router as scores_router
 from routes.geography import router as geography_router
 from routes.complaints import router as complaints_router

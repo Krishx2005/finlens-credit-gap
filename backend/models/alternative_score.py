@@ -2,7 +2,7 @@
 import logging
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import joblib
 import numpy as np
@@ -27,8 +27,8 @@ FEATURE_COLS = [
     "age_bracket_encoded",
 ]
 
-_model_cache: Optional[RandomForestClassifier] = None
-_county_cache: Optional[dict] = None
+_model_cache = None
+_county_cache = None
 
 
 def _age_to_int(age_bracket: str) -> int:
@@ -142,7 +142,7 @@ def train_model(db_session: Any) -> None:
     logger.info("Model saved to %s", MODEL_PATH)
 
 
-def load_model() -> Optional[dict]:
+def load_model():
     global _model_cache
     if _model_cache is not None:
         return _model_cache
@@ -156,12 +156,10 @@ def load_model() -> Optional[dict]:
 def calculate_score(income: float, loan_amount: float, county_fips: str,
                     age_bracket: str, employment_type: str,
                     db_session: Any) -> dict:
-    """Calculate alternative credit score for an applicant."""
     from database import CountyMaster
 
     county = db_session.query(CountyMaster).filter_by(county_fips=county_fips).first()
     if not county:
-        # fallback county
         county_data = {
             "median_income": 55000,
             "population": 100000,
@@ -194,7 +192,6 @@ def calculate_score(income: float, loan_amount: float, county_fips: str,
     fico_est = max(300, min(850, fico_est))
     score_gap = alt_score - fico_est
 
-    # Score grade
     if alt_score >= 750:
         grade = "A"
     elif alt_score >= 650:
@@ -206,7 +203,6 @@ def calculate_score(income: float, loan_amount: float, county_fips: str,
     else:
         grade = "F"
 
-    # Employment adjustment
     employment_adj = {
         "employed": 15,
         "self_employed": 5,

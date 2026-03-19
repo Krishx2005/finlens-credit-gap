@@ -1,7 +1,8 @@
 """PDF report generation routes."""
 import io
 from datetime import datetime
-from fastapi import APIRouter, Depends
+from typing import Optional
+from fastapi import APIRouter, Depends, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
@@ -10,7 +11,7 @@ from database import get_db, CountyMaster, CFPBComplaint
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 
 
-def _generate_pdf(db: Session) -> bytes:
+def _generate_pdf(db: Session, state: Optional[str] = None, report_type: str = "disparity") -> bytes:
     """Generate a FinLens disparity analysis PDF using ReportLab."""
     from reportlab.platypus import (
         SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, HRFlowable
@@ -37,15 +38,19 @@ def _generate_pdf(db: Session) -> bytes:
 
     story = []
 
-    # Header
-    story.append(Paragraph("FinLens — Alternative Credit Scoring Report", title_style))
-    story.append(Paragraph(f"Generated: {datetime.utcnow().strftime('%B %d, %Y')}", small_style))
+    scope_label = f"State: {state.upper()}" if state else "National Overview"
+    report_label = {"disparity": "Disparity Analysis", "credit_desert": "Credit Desert Profile",
+                    "complaint": "Complaint Summary"}.get(report_type, report_type.replace("_", " ").title())
+    story.append(Paragraph(f"FinLens — {report_label}", title_style))
+    story.append(Paragraph(f"Generated: {datetime.utcnow().strftime('%B %d, %Y')} · {scope_label}", small_style))
     story.append(Paragraph("Data-driven analysis of US credit access disparities", body_style))
     story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#3b82f6"), spaceAfter=12))
 
-    # --- Section 1: Executive Summary ---
     story.append(Paragraph("Executive Summary", heading_style))
-    counties = db.query(CountyMaster).all()
+    q = db.query(CountyMaster)
+    if state:
+        q = q.filter(CountyMaster.state == state.upper())
+    counties = q.all()
     rural = [c for c in counties if c.is_rural]
     urban = [c for c in counties if not c.is_rural]
     deserts = [c for c in counties if c.credit_desert]
@@ -72,7 +77,6 @@ def _generate_pdf(db: Session) -> bytes:
     story.append(Paragraph(summary_text, body_style))
     story.append(Spacer(1, 12))
 
-    # Key metrics table
     story.append(Paragraph("Key Metrics", heading_style))
     metrics_data = [
         ["Metric", "Rural", "Urban", "Gap"],
@@ -97,10 +101,8 @@ def _generate_pdf(db: Session) -> bytes:
     story.append(t)
     story.append(Spacer(1, 16))
 
-    # --- Section 2: Denial Rate Chart ---
     story.append(Paragraph("Geographic Disparity Analysis", heading_style))
 
-    # matplotlib chart: Top 10 disparity counties
     top_counties = sorted(counties, key=lambda c: c.disparity_index or 0, reverse=True)[:10]
     if top_counties:
         fig, ax = plt.subplots(figsize=(6.5, 3.5))
@@ -122,7 +124,6 @@ def _generate_pdf(db: Session) -> bytes:
         story.append(RLImage(chart_buf, width=6 * inch, height=3 * inch))
         story.append(Spacer(1, 8))
 
-    # Top counties table
     story.append(Paragraph("Top 15 Most Disparate Counties", heading_style))
     top15 = sorted(counties, key=lambda c: c.disparity_index or 0, reverse=True)[:15]
     table_data = [["County", "State", "Denial Rate", "Alt Score", "FICO Est.", "Gap", "Rural"]]
@@ -150,8 +151,10 @@ def _generate_pdf(db: Session) -> bytes:
     story.append(t2)
     story.append(Spacer(1, 16))
 
-    # --- Section 3: Complaint Analysis ---
-    complaints = db.query(CFPBComplaint).all()
+    cq = db.query(CFPBComplaint)
+    if state:
+        cq = cq.filter(CFPBComplaint.state == state.upper())
+    complaints = cq.all()
     if complaints:
         story.append(Paragraph("CFPB Complaint Analysis", heading_style))
         by_product: dict[str, int] = {}
@@ -180,7 +183,6 @@ def _generate_pdf(db: Session) -> bytes:
 
     story.append(Spacer(1, 16))
 
-    # --- Section 4: Methodology ---
     story.append(Paragraph("Methodology & Data Sources", heading_style))
     methodology_text = (
         "The FinLens alternative credit score (range: 300-850) is computed using a RandomForestClassifier "
@@ -214,8 +216,7 @@ def _generate_pdf(db: Session) -> bytes:
 
     story.append(Spacer(1, 12))
     story.append(Paragraph(
-        "Limitations: Mock data is used when live federal datasets are unavailable. "
-        "The model is illustrative and should not be used for actual lending decisions. "
+        "Limitations: The model is illustrative and should not be used for actual lending decisions. "
         "All findings are for research and policy analysis purposes only.",
         small_style
     ))
@@ -224,11 +225,32 @@ def _generate_pdf(db: Session) -> bytes:
     return buffer.getvalue()
 
 
+@router.get("/generate")
+def generate_report(
+    db: Session = Depends(get_db),
+    state: Optional[str] = Query(None),
+    report_type: str = Query("disparity"),
+):
+    pdf_bytes = _generate_pdf(db, state=state, report_type=report_type)
+    state_slug = f"_{state.lower()}" if state else ""
+    filename = f"finlens_{report_type}{state_slug}_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
+    )
+
+
 @router.get("/download")
-def download_report(db: Session = Depends(get_db)):
-    """Generate and stream a PDF disparity report."""
-    pdf_bytes = _generate_pdf(db)
-    filename = f"finlens_report_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
+def download_report(
+    db: Session = Depends(get_db),
+    state: Optional[str] = Query(None),
+    report_type: str = Query("disparity"),
+):
+    """Generate and stream a PDF disparity report (legacy alias for /generate)."""
+    pdf_bytes = _generate_pdf(db, state=state, report_type=report_type)
+    state_slug = f"_{state.lower()}" if state else ""
+    filename = f"finlens_{report_type}{state_slug}_{datetime.utcnow().strftime('%Y%m%d')}.pdf"
     return StreamingResponse(
         io.BytesIO(pdf_bytes),
         media_type="application/pdf",
@@ -238,7 +260,6 @@ def download_report(db: Session = Depends(get_db)):
 
 @router.get("/preview")
 def preview_report(db: Session = Depends(get_db)):
-    """Return report metadata for frontend preview card."""
     counties = db.query(CountyMaster).all()
     complaints = db.query(CFPBComplaint).all()
     rural = [c for c in counties if c.is_rural]

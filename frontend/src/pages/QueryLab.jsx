@@ -185,7 +185,6 @@ export default function QueryLab() {
     <div style={{ minHeight: '100vh', padding: '48px 0 80px' }}>
       <div style={{ maxWidth: '960px', margin: '0 auto', padding: '0 24px' }}>
 
-        {/* Header */}
         <div style={{ paddingTop: '48px', paddingBottom: '40px' }}>
           <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(0,113,227,0.08)', border: '1px solid rgba(0,113,227,0.15)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
             AI Analysis
@@ -198,7 +197,6 @@ export default function QueryLab() {
           </p>
         </div>
 
-        {/* Query input */}
         <div className="glass-card" style={{ borderRadius: '20px', padding: '24px', marginBottom: '24px' }}>
           <div style={{ display: 'flex', gap: '12px', marginBottom: examples.length > 0 ? '20px' : 0 }}>
             <input
@@ -257,14 +255,12 @@ export default function QueryLab() {
           )}
         </div>
 
-        {/* Error */}
         {error && (
           <div style={{ marginBottom: '24px', padding: '12px 16px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', borderRadius: '12px', fontSize: '13px', color: 'var(--danger)' }}>
             {error}
           </div>
         )}
 
-        {/* Loading shimmer */}
         {loading && (
           <div className="glass-card" style={{ borderRadius: '20px', padding: '24px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -275,7 +271,6 @@ export default function QueryLab() {
           </div>
         )}
 
-        {/* Results */}
         {result && !loading && (
           <div className="glass-card" style={{ borderRadius: '20px', padding: '24px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
@@ -323,7 +318,6 @@ export default function QueryLab() {
           </div>
         )}
 
-        {/* Query history */}
         {history.length > 0 && (
           <div className="glass-card" style={{ borderRadius: '20px', padding: '24px' }}>
             <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '16px' }}>

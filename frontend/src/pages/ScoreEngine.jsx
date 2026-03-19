@@ -230,7 +230,6 @@ export default function ScoreEngine() {
     <div style={{ minHeight: '100vh', padding: '48px 0 80px' }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
 
-        {/* Header */}
         <div style={{ paddingTop: '48px', paddingBottom: '48px' }}>
           <div
             style={{
@@ -265,10 +264,8 @@ export default function ScoreEngine() {
           </p>
         </div>
 
-        {/* Main 2-col layout */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '80px' }}>
 
-          {/* Form card */}
           <div
             className="glass-card"
             style={{ borderRadius: '20px', padding: '32px' }}
@@ -368,14 +365,12 @@ export default function ScoreEngine() {
             </form>
           </div>
 
-          {/* Results card */}
           <div
             className="glass-card"
             style={{ borderRadius: '20px', padding: '32px', display: 'flex', flexDirection: 'column' }}
           >
             {result ? (
               <>
-                {/* Score gauges */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <ScoreGauge score={result.alternative_score} grade={scoreGrade} label="Alternative Score" />
@@ -385,7 +380,6 @@ export default function ScoreEngine() {
                   </div>
                 </div>
 
-                {/* Score gap */}
                 <div
                   style={{
                     borderRadius: '12px',
@@ -408,12 +402,10 @@ export default function ScoreEngine() {
                   </div>
                 </div>
 
-                {/* Explanation */}
                 <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '20px' }}>
                   {result.explanation}
                 </div>
 
-                {/* Breakdown bars */}
                 <div style={{ marginBottom: '20px' }}>
                   <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '14px' }}>
                     Score Breakdown
@@ -423,7 +415,6 @@ export default function ScoreEngine() {
                   ))}
                 </div>
 
-                {/* Approval probability */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: 'auto' }}>
                   <span style={{ fontSize: '12px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Approval Probability</span>
                   <div style={{ flex: 1, background: 'rgba(0,0,0,0.06)', borderRadius: '999px', height: '4px' }}>
@@ -467,7 +458,6 @@ export default function ScoreEngine() {
           </div>
         </div>
 
-        {/* Demo profiles */}
         {demos.length > 0 && (
           <section>
             <div style={{ marginBottom: '24px' }}>
@@ -513,7 +503,6 @@ export default function ScoreEngine() {
                     </div>
                   </div>
 
-                  {/* Score gap bar */}
                   <div style={{ marginBottom: '12px' }}>
                     <div style={{ background: 'rgba(0,0,0,0.06)', borderRadius: '999px', height: '3px', position: 'relative' }}>
                       <div style={{

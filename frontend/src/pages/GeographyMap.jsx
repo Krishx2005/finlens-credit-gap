@@ -81,7 +81,6 @@ export default function GeographyMap() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Header bar */}
       <div
         style={{
           padding: '0 24px',
@@ -103,7 +102,6 @@ export default function GeographyMap() {
           </h1>
         </div>
 
-        {/* Metric pills */}
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', flex: 1 }}>
           {LAYER_OPTIONS.map((opt) => (
             <button
@@ -121,7 +119,6 @@ export default function GeographyMap() {
           ))}
         </div>
 
-        {/* Search */}
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -139,9 +136,7 @@ export default function GeographyMap() {
         />
       </div>
 
-      {/* Body */}
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
-        {/* County grid */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
           {loading ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '240px', color: 'var(--text-tertiary)', fontSize: '14px' }}>
@@ -153,7 +148,6 @@ export default function GeographyMap() {
                 <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                   {filtered.length.toLocaleString()} counties · <span style={{ color: 'var(--accent)' }}>{metricOption?.label}</span>
                 </span>
-                {/* Color scale */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginLeft: 'auto' }}>
                   <span style={{ fontSize: '11px', color: 'var(--text-tertiary)' }}>Low</span>
                   {['var(--positive)', '#34c759', 'var(--warning)', '#ff6b35', 'var(--danger)'].map((c, i) => (
@@ -211,7 +205,6 @@ export default function GeographyMap() {
           )}
         </div>
 
-        {/* County detail sidebar */}
         {selectedCounty && (
           <div
             style={{

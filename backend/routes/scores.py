@@ -31,7 +31,6 @@ class ScoreResponse(BaseModel):
 
 @router.post("/calculate", response_model=ScoreResponse)
 def calculate_credit_score(request: ScoreRequest, db: Session = Depends(get_db)):
-    """Calculate alternative credit score for an applicant."""
     valid_age_brackets = {"18-25", "26-35", "36-50", "51-65", "65+"}
     if request.age_bracket not in valid_age_brackets:
         raise HTTPException(status_code=422, detail=f"age_bracket must be one of {valid_age_brackets}")
@@ -53,7 +52,6 @@ def calculate_credit_score(request: ScoreRequest, db: Session = Depends(get_db))
 
 @router.get("/demo")
 def get_demo_scores(db: Session = Depends(get_db)):
-    """Return pre-computed contrasting applicant examples."""
     demo_profiles = [
         {
             "label": "Young Rural Borrower",
@@ -111,7 +109,6 @@ def get_demo_scores(db: Session = Depends(get_db)):
 
 @router.get("/model-info")
 def get_model_info():
-    """Return model metadata."""
     from models.alternative_score import load_model
     model_data = load_model()
     return {

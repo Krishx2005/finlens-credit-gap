@@ -57,31 +57,31 @@ const AGE_DATA = [
 
 const FINDING_CARDS = [
   {
-    badge: 'Credit Access',
-    color: 'var(--danger)',
-    colorBg: 'rgba(192,57,43,0.08)',
-    colorBorder: 'rgba(192,57,43,0.2)',
-    title: 'Credit Deserts',
-    metric: '847',
-    desc: 'Counties where denial rates exceed 40% despite household incomes above $40K. Geography penalizes creditworthy borrowers.',
-  },
-  {
-    badge: 'Rural Penalty',
-    color: 'var(--warning)',
-    colorBg: 'rgba(183,149,11,0.08)',
-    colorBorder: 'rgba(183,149,11,0.2)',
-    title: 'The Rural Premium',
-    metric: '+23%',
-    desc: 'Rural applicants face a 23-point higher denial rate than urban counterparts at identical income levels. FICO doesn\'t account for this.',
-  },
-  {
-    badge: 'Score Gap',
+    badge: 'Geography',
     color: 'var(--accent)',
     colorBg: 'rgba(0,113,227,0.08)',
     colorBorder: 'rgba(0,113,227,0.2)',
-    title: 'The Hidden Gap',
-    metric: '73 pts',
-    desc: 'On average, rural borrowers\' alternative credit scores are 73 points higher than their FICO estimates suggest. This gap disappears when you look at structural access.',
+    title: 'The Geography Gap',
+    metric: '847 counties',
+    desc: '847 counties have loan denial rates above 40% despite median household incomes above $50K. Geography — not finances — is the deciding factor.',
+  },
+  {
+    badge: 'Score Gap',
+    color: 'var(--warning)',
+    colorBg: 'rgba(183,149,11,0.08)',
+    colorBorder: 'rgba(183,149,11,0.2)',
+    title: 'The Score Gap',
+    metric: '169 points avg',
+    desc: 'Rural borrowers\' alternative credit scores average 169 points higher than their FICO estimates. Traditional scoring ignores bank access and structural economic factors.',
+  },
+  {
+    badge: 'Access',
+    color: 'var(--danger)',
+    colorBg: 'rgba(192,57,43,0.08)',
+    colorBorder: 'rgba(192,57,43,0.2)',
+    title: 'The Access Gap',
+    metric: '612 credit deserts',
+    desc: '612 communities have been effectively abandoned by traditional banking — fewer than 2 branches per 1,000 residents, yet FICO still penalizes residents for "thin files".',
   },
 ]
 
@@ -100,6 +100,8 @@ export default function Home() {
   const [summary, setSummary] = useState(null)
   const heroRef = useRef(null)
   const sectionRef = useScrollAnimation()
+  const findingCardsRef = useScrollAnimation()
+  const profilesRef = useScrollAnimation()
 
   useEffect(() => {
     getGeographySummary().then(setSummary).catch(() => {})
@@ -108,13 +110,11 @@ export default function Home() {
   return (
     <div className="min-h-screen overflow-x-hidden">
 
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section
         ref={heroRef}
         className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-6 overflow-hidden"
         style={{ background: '#f5f5f7' }}
       >
-        {/* Gradient orbs */}
         <div
           className="orb animate-orb-float"
           style={{
@@ -204,7 +204,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll cue */}
         <div
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40"
         >
@@ -213,7 +212,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Stat counters ──────────────────────────────────────────────── */}
       <section
         ref={sectionRef}
         className="py-24 px-6"
@@ -240,7 +238,7 @@ export default function Home() {
               {
                 label: 'Rural Denial Premium',
                 value: summary ? (
-                  <><AnimatedNumber target={summary.rural_denial_premium * 100} decimals={1} />%</>
+                  <><AnimatedNumber target={summary.rural_denial_premium} decimals={1} />%</>
                 ) : '—',
                 desc: 'above urban applicants',
                 color: 'var(--warning)',
@@ -280,12 +278,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Finding cards ──────────────────────────────────────────────── */}
-      <section className="py-16 px-6">
+      <section ref={findingCardsRef} className="py-16 px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="label-mono mb-4" style={{ color: 'var(--text-tertiary)' }}>Key Findings</div>
+          <div className="label-mono mb-4 animate-on-scroll" style={{ color: 'var(--text-tertiary)' }}>Key Findings</div>
           <h2
-            className="text-4xl font-bold tracking-tight mb-12"
+            className="text-4xl font-bold tracking-tight mb-12 animate-on-scroll animate-on-scroll-delay-1"
             style={{ color: 'var(--text-primary)' }}
           >
             Three gaps. One system.
@@ -295,7 +292,7 @@ export default function Home() {
             {FINDING_CARDS.map((card, i) => (
               <div
                 key={card.title}
-                className="glass-card rounded-2xl p-7 card-hover animate-on-scroll"
+                className={`glass-card rounded-2xl p-7 card-hover animate-on-scroll animate-on-scroll-delay-${i + 2}`}
                 style={{ transitionDelay: `${i * 0.12}s` }}
               >
                 <div
@@ -329,7 +326,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Charts ─────────────────────────────────────────────────────── */}
       <section className="py-16 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="label-mono mb-4" style={{ color: 'var(--text-tertiary)' }}>Data Patterns</div>
@@ -398,7 +394,204 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Data Sources ───────────────────────────────────────────────── */}
+      <section ref={profilesRef} className="py-16 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="label-mono mb-4 animate-on-scroll" style={{ color: 'var(--text-tertiary)' }}>
+            Contrasting Profiles
+          </div>
+          <h2
+            className="text-4xl font-bold tracking-tight mb-12 animate-on-scroll animate-on-scroll-delay-1"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            The Gap in Practice
+          </h2>
+
+          <div
+            className="grid gap-5 animate-on-scroll animate-on-scroll-delay-2"
+            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
+          >
+            <div
+              className="glass-card rounded-2xl p-7 card-hover"
+              style={{
+                border: '1px solid rgba(0,113,227,0.2)',
+                boxShadow: '0 4px 24px rgba(0,113,227,0.07)',
+              }}
+            >
+              <div
+                className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold font-mono mb-5"
+                style={{
+                  background: 'rgba(0,113,227,0.08)',
+                  border: '1px solid rgba(0,113,227,0.2)',
+                  color: 'var(--accent)',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                URBAN BORROWER
+              </div>
+
+              <div className="mb-5">
+                <div className="text-base font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+                  Michael, 34 — Chicago, IL
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                {[
+                  { label: 'Annual Income', value: '$72,000' },
+                  { label: 'Loan Request', value: '$250,000' },
+                  { label: 'FICO Score', value: '680' },
+                  { label: 'Alternative Score', value: '701' },
+                  { label: 'Bank Branches Nearby', value: '14' },
+                  { label: 'County Denial Rate', value: '18%' },
+                ].map(({ label, value }) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '7px 0',
+                      borderBottom: '1px solid rgba(0,0,0,0.05)',
+                    }}
+                  >
+                    <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{label}</span>
+                    <span style={{ fontSize: '13px', fontFamily: 'ui-monospace, monospace', fontWeight: 500, color: 'var(--text-primary)' }}>{value}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 16px',
+                  background: 'rgba(29,131,72,0.1)',
+                  border: '1px solid rgba(29,131,72,0.25)',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: 'var(--positive)',
+                }}
+              >
+                <span>✓</span> APPROVED
+              </div>
+            </div>
+
+            <div
+              className="glass-card rounded-2xl p-7 card-hover"
+              style={{
+                border: '1px solid rgba(183,149,11,0.2)',
+                boxShadow: '0 4px 24px rgba(183,149,11,0.07)',
+              }}
+            >
+              <div
+                className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold font-mono mb-5"
+                style={{
+                  background: 'rgba(183,149,11,0.08)',
+                  border: '1px solid rgba(183,149,11,0.2)',
+                  color: 'var(--warning)',
+                  letterSpacing: '0.08em',
+                }}
+              >
+                RURAL BORROWER
+              </div>
+
+              <div className="mb-5">
+                <div className="text-base font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>
+                  James, 34 — Greeley County, NE
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
+                {[
+                  { label: 'Annual Income', value: '$71,000', note: 'similar income' },
+                  { label: 'Loan Request', value: '$250,000', note: 'same loan' },
+                  { label: 'FICO Score', value: '612', highlight: 'danger' },
+                  { label: 'Alternative Score', value: '698', note: 'nearly identical' },
+                  { label: 'Bank Branches Nearby', value: '1', highlight: 'danger' },
+                  { label: 'County Denial Rate', value: '67%', highlight: 'danger' },
+                ].map(({ label, value, note, highlight }) => (
+                  <div
+                    key={label}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '7px 0',
+                      borderBottom: '1px solid rgba(0,0,0,0.05)',
+                    }}
+                  >
+                    <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{label}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      {note && (
+                        <span style={{ fontSize: '10px', color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
+                          {note}
+                        </span>
+                      )}
+                      <span
+                        style={{
+                          fontSize: '13px',
+                          fontFamily: 'ui-monospace, monospace',
+                          fontWeight: 500,
+                          color: highlight === 'danger' ? 'var(--danger)' : 'var(--text-primary)',
+                        }}
+                      >
+                        {value}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '8px 16px',
+                  background: 'rgba(192,57,43,0.1)',
+                  border: '1px solid rgba(192,57,43,0.25)',
+                  borderRadius: '10px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: 'var(--danger)',
+                }}
+              >
+                <span>✗</span> DENIED
+              </div>
+            </div>
+          </div>
+
+          <div
+            className="animate-on-scroll animate-on-scroll-delay-3"
+            style={{
+              marginTop: '20px',
+              padding: '20px 24px',
+              background: 'rgba(0,113,227,0.05)',
+              border: '1px solid rgba(0,113,227,0.15)',
+              borderLeft: '4px solid var(--accent)',
+              borderRadius: '12px',
+              textAlign: 'center',
+            }}
+          >
+            <p
+              style={{
+                fontSize: '15px',
+                fontWeight: 600,
+                color: 'var(--text-primary)',
+                lineHeight: 1.6,
+                margin: 0,
+              }}
+            >
+              Same loan. Similar income. Similar alternative score.
+              <br />
+              Different zip code. Different outcome.
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="py-16 px-6 pb-24">
         <div className="max-w-5xl mx-auto">
           <div

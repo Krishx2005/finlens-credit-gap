@@ -1,9 +1,12 @@
 """CFPB Complaint API routes."""
+import sqlite3
+from pathlib import Path
 from typing import Optional
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
-
 from database import get_db, CFPBComplaint
+
+_DB_PATH = str(Path(__file__).parent.parent / "data" / "finlens.db")
 
 router = APIRouter(prefix="/api/complaints", tags=["complaints"])
 
@@ -21,7 +24,6 @@ def get_complaints(
     page: int = Query(1, ge=1),
     limit: int = Query(50, ge=1, le=200),
 ):
-    """Return paginated, filterable CFPB complaints."""
     q = db.query(CFPBComplaint)
     if state:
         q = q.filter(CFPBComplaint.state == state.upper())
@@ -64,7 +66,6 @@ def get_complaints(
 
 @router.get("/summary")
 def get_complaint_summary(db: Session = Depends(get_db)):
-    """Return aggregated stats for charts."""
     all_complaints = db.query(CFPBComplaint).all()
 
     by_product: dict[str, int] = {}
@@ -73,9 +74,6 @@ def get_complaint_summary(db: Session = Depends(get_db)):
     by_issue: dict[str, int] = {}
     by_month: dict[str, int] = {}
     by_response: dict[str, int] = {}
-    disputed_total = 0
-    timely_total = 0
-
     for c in all_complaints:
         if c.product:
             by_product[c.product] = by_product.get(c.product, 0) + 1
@@ -89,12 +87,15 @@ def get_complaint_summary(db: Session = Depends(get_db)):
             by_response[c.company_response] = by_response.get(c.company_response, 0) + 1
         month_key = c.date_received[:7] if c.date_received and len(c.date_received) >= 7 else "unknown"
         by_month[month_key] = by_month.get(month_key, 0) + 1
-        if c.consumer_disputed and c.consumer_disputed.lower() == "yes":
-            disputed_total += 1
-        if c.timely_response and c.timely_response.lower() == "yes":
-            timely_total += 1
 
     total = len(all_complaints)
+    with sqlite3.connect(_DB_PATH) as _conn:
+        disputed_total = _conn.execute(
+            "SELECT COUNT(*) FROM cfpb_complaints WHERE consumer_disputed = 1"
+        ).fetchone()[0]
+        timely_total = _conn.execute(
+            "SELECT COUNT(*) FROM cfpb_complaints WHERE timely_response = 1"
+        ).fetchone()[0]
 
     top_companies = sorted(by_company.items(), key=lambda x: x[1], reverse=True)[:10]
     monthly_series = sorted(by_month.items())
@@ -105,7 +106,7 @@ def get_complaint_summary(db: Session = Depends(get_db)):
         "by_product": [{"product": k, "count": v} for k, v in sorted(by_product.items(), key=lambda x: x[1], reverse=True)],
         "by_company": [{"company": k, "count": v} for k, v in top_companies],
         "by_state": [{"state": k, "count": v} for k, v in sorted(by_state.items(), key=lambda x: x[1], reverse=True)],
-        "by_issue": [{"issue": k, "count": v} for k, v in sorted(by_issue.items(), key=lambda x: x[1], reverse=True)[:8]],
+        "by_issue": [{"issue": k, "count": v} for k, v in sorted(by_issue.items(), key=lambda x: x[1], reverse=True)],
         "by_response": [{"response": k, "count": v} for k, v in sorted(by_response.items(), key=lambda x: x[1], reverse=True)],
         "monthly_trend": [{"month": k, "count": v} for k, v in monthly_series],
         "dispute_rate": round(disputed_total / max(1, total), 4),

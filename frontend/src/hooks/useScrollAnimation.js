@@ -1,14 +1,26 @@
 import { useEffect, useRef } from 'react'
 
+// Mark body so CSS can enable the opacity-gate only when JS is running.
+// Elements already in viewport on mount get .in-view immediately.
+function enableScrollAnimations() {
+  if (!document.body.classList.contains('js-scroll-ready')) {
+    document.body.classList.add('js-scroll-ready')
+  }
+}
+
 /**
  * Attach to a container ref — all .animate-on-scroll children inside
  * will get the "in-view" class when they enter the viewport.
+ * Content is always visible if JS fails or observer never fires.
  */
 export function useScrollAnimation(options = {}) {
   const ref = useRef(null)
 
   useEffect(() => {
-    const { threshold = 0.12, rootMargin = '0px 0px -48px 0px' } = options
+    const { threshold = 0.08, rootMargin = '0px 0px -32px 0px' } = options
+
+    enableScrollAnimations()
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -25,7 +37,15 @@ export function useScrollAnimation(options = {}) {
     if (!container) return
 
     const targets = container.querySelectorAll('.animate-on-scroll')
-    targets.forEach((el) => observer.observe(el))
+    targets.forEach((el) => {
+      // If already in viewport, mark visible immediately without waiting
+      const rect = el.getBoundingClientRect()
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        el.classList.add('in-view')
+      } else {
+        observer.observe(el)
+      }
+    })
 
     return () => observer.disconnect()
   }, [])
@@ -41,6 +61,9 @@ export function useElementAnimation(options = {}) {
 
   useEffect(() => {
     const { threshold = 0.1, rootMargin = '0px 0px -32px 0px' } = options
+
+    enableScrollAnimations()
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -52,7 +75,14 @@ export function useElementAnimation(options = {}) {
     )
 
     const el = ref.current
-    if (el) observer.observe(el)
+    if (el) {
+      const rect = el.getBoundingClientRect()
+      if (rect.top < window.innerHeight && rect.bottom > 0) {
+        el.classList.add('in-view')
+      } else {
+        observer.observe(el)
+      }
+    }
     return () => observer.disconnect()
   }, [])
 

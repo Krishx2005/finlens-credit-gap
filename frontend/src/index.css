@@ -99,14 +99,21 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ─── Scroll Animations ──────────────────────────────────────────────── */
+/* Content is visible by default — animation enhances, never gates */
 .animate-on-scroll {
-  opacity: 0;
-  transform: translateY(24px);
+  opacity: 1;
+  transform: translateY(0);
   transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.animate-on-scroll.in-view {
+/* JS adds .js-scroll-ready to <body> before observing, enabling the effect */
+body.js-scroll-ready .animate-on-scroll:not(.in-view) {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+body.js-scroll-ready .animate-on-scroll.in-view {
   opacity: 1;
   transform: translateY(0);
 }

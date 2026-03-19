@@ -11,46 +11,33 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-api.interceptors.request.use((config) => {
-  const url = `${config.baseURL}${config.url}`
-  console.log(`[API] → ${config.method?.toUpperCase()} ${url}`, config.params || '')
-  return config
-})
+api.interceptors.request.use((config) => config)
 
 api.interceptors.response.use(
-  (response) => {
-    console.log(`[API] ← ${response.status} ${response.config.url}`, response.data)
-    return response.data
-  },
+  (response) => response.data,
   (error) => {
-    console.error(`[API] ✗ ${error.config?.url}`, error.message, error.response?.data)
     const msg = error?.response?.data?.detail || error.message || 'API error'
     return Promise.reject(new Error(msg))
   }
 )
 
-// Scores
 export const calculateScore = (payload) => api.post('/api/scores/calculate', payload)
 export const getDemoScores = () => api.get('/api/scores/demo')
 export const getModelInfo = () => api.get('/api/scores/model-info')
 
-// Geography
 export const getAllCounties = () => api.get('/api/geography/counties')
 export const getCounty = (fips) => api.get(`/api/geography/county/${fips}`)
 export const getDisparities = () => api.get('/api/geography/disparities')
 export const getCreditDeserts = () => api.get('/api/geography/credit-deserts')
 export const getGeographySummary = () => api.get('/api/geography/summary')
 
-// Complaints
 export const getComplaints = (params, signal) => api.get('/api/complaints', { params, signal })
 export const getComplaintSummary = () => api.get('/api/complaints/summary')
 
-// NL Query
 export const runQuery = (payload) => api.post('/api/query', payload)
 export const getQueryExamples = () => api.get('/api/query/examples')
 export const getQueryHistory = () => api.get('/api/query/history')
 
-// Reports
 export const getReportPreview = (params) => api.get('/api/reports/preview', { params })
 // Use shared instance so interceptors (auth headers, error normalization) apply.
 // responseType:'blob' means the interceptor returns the blob directly via response.data.
