@@ -46,8 +46,8 @@ function CountySearch({ counties, value, onChange }) {
         placeholder="Type to search counties…"
         style={{
           width: '100%',
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.1)',
+          background: '#ffffff',
+          border: '1px solid rgba(0,0,0,0.16)',
           borderRadius: '10px',
           padding: '10px 14px',
           color: 'var(--text-primary)',
@@ -55,17 +55,16 @@ function CountySearch({ counties, value, onChange }) {
           outline: 'none',
           transition: 'border-color 0.15s ease',
         }}
-        onFocus_extra={(e) => { e.target.style.borderColor = 'var(--accent)' }}
-        onBlur={(e) => { e.target.style.borderColor = 'rgba(255,255,255,0.1)' }}
+        onBlur={(e) => { e.target.style.borderColor = 'rgba(0,0,0,0.16)' }}
       />
       {open && filtered.length > 0 && (
         <ul
           className="absolute z-50 w-full mt-1 max-h-56 overflow-y-auto"
           style={{
-            background: '#1a1a1a',
-            border: '1px solid rgba(255,255,255,0.1)',
+            background: '#ffffff',
+            border: '1px solid rgba(0,0,0,0.12)',
             borderRadius: '10px',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.6)',
+            boxShadow: '0 16px 48px rgba(0,0,0,0.12)',
           }}
         >
           {filtered.map((c) => (
@@ -79,7 +78,7 @@ function CountySearch({ counties, value, onChange }) {
                 color: c.fips === value ? 'var(--accent)' : 'var(--text-secondary)',
                 transition: 'background 0.1s ease',
               }}
-              onMouseEnter={(e) => { e.target.style.background = 'rgba(255,255,255,0.05)'; e.target.style.color = 'var(--text-primary)' }}
+              onMouseEnter={(e) => { e.target.style.background = 'rgba(0,0,0,0.04)'; e.target.style.color = 'var(--text-primary)' }}
               onMouseLeave={(e) => { e.target.style.background = 'transparent'; e.target.style.color = c.fips === value ? 'var(--accent)' : 'var(--text-secondary)' }}
             >
               {c.label}
@@ -91,8 +90,8 @@ function CountySearch({ counties, value, onChange }) {
         <div
           className="absolute z-50 w-full mt-1"
           style={{
-            background: '#1a1a1a',
-            border: '1px solid rgba(255,255,255,0.1)',
+            background: '#ffffff',
+            border: '1px solid rgba(0,0,0,0.1)',
             borderRadius: '10px',
             padding: '12px 14px',
             fontSize: '13px',
@@ -118,7 +117,7 @@ function ScoreBreakdownBar({ label, value, contribution, index }) {
           {isPositive ? '+' : ''}{contribution.toFixed(1)}%
         </span>
       </div>
-      <div style={{ width: '100%', background: 'rgba(255,255,255,0.06)', borderRadius: '999px', height: '4px' }}>
+      <div style={{ width: '100%', background: 'rgba(0,0,0,0.06)', borderRadius: '999px', height: '4px' }}>
         <div
           style={{
             height: '4px',
@@ -149,8 +148,8 @@ function InputField({ label, hint, children }) {
 
 const inputStyle = {
   width: '100%',
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.1)',
+  background: '#ffffff',
+  border: '1px solid rgba(0,0,0,0.16)',
   borderRadius: '10px',
   padding: '10px 14px',
   color: 'var(--text-primary)',
@@ -241,8 +240,8 @@ export default function ScoreEngine() {
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               color: 'var(--accent)',
-              background: 'rgba(41,151,255,0.1)',
-              border: '1px solid rgba(41,151,255,0.2)',
+              background: 'rgba(0,113,227,0.08)',
+              border: '1px solid rgba(0,113,227,0.15)',
               padding: '4px 12px',
               borderRadius: '999px',
               marginBottom: '20px',
@@ -318,7 +317,7 @@ export default function ScoreEngine() {
                     style={inputStyle}
                   >
                     {['18-25', '26-35', '36-50', '51-65', '65+'].map((b) => (
-                      <option key={b} value={b} style={{ background: '#1a1a1a' }}>{b}</option>
+                      <option key={b} value={b} style={{ background: '#ffffff' }}>{b}</option>
                     ))}
                   </select>
                 </InputField>
@@ -335,14 +334,14 @@ export default function ScoreEngine() {
                       ['gig_worker', 'Gig Worker'],
                       ['retired', 'Retired'],
                     ].map(([val, label]) => (
-                      <option key={val} value={val} style={{ background: '#1a1a1a' }}>{label}</option>
+                      <option key={val} value={val} style={{ background: '#ffffff' }}>{label}</option>
                     ))}
                   </select>
                 </InputField>
               </div>
 
               {error && (
-                <div style={{ fontSize: '13px', color: 'var(--danger)', padding: '10px 14px', background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: '10px' }}>
+                <div style={{ fontSize: '13px', color: 'var(--danger)', padding: '10px 14px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', borderRadius: '10px' }}>
                   {error}
                 </div>
               )}
@@ -353,7 +352,7 @@ export default function ScoreEngine() {
                 style={{
                   width: '100%',
                   padding: '12px',
-                  background: loading ? 'rgba(41,151,255,0.5)' : 'var(--accent)',
+                  background: loading ? 'rgba(0,113,227,0.5)' : 'var(--accent)',
                   color: '#fff',
                   fontWeight: 500,
                   fontSize: '14px',
@@ -392,8 +391,8 @@ export default function ScoreEngine() {
                     borderRadius: '12px',
                     padding: '16px',
                     marginBottom: '20px',
-                    background: result.score_gap > 0 ? 'rgba(48,209,88,0.07)' : 'rgba(255,69,58,0.07)',
-                    border: `1px solid ${result.score_gap > 0 ? 'rgba(48,209,88,0.2)' : 'rgba(255,69,58,0.2)'}`,
+                    background: result.score_gap > 0 ? 'rgba(29,131,72,0.07)' : 'rgba(192,57,43,0.07)',
+                    border: `1px solid ${result.score_gap > 0 ? 'rgba(29,131,72,0.2)' : 'rgba(192,57,43,0.2)'}`,
                   }}
                 >
                   <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '6px' }}>
@@ -427,7 +426,7 @@ export default function ScoreEngine() {
                 {/* Approval probability */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: 'auto' }}>
                   <span style={{ fontSize: '12px', color: 'var(--text-secondary)', whiteSpace: 'nowrap' }}>Approval Probability</span>
-                  <div style={{ flex: 1, background: 'rgba(255,255,255,0.06)', borderRadius: '999px', height: '4px' }}>
+                  <div style={{ flex: 1, background: 'rgba(0,0,0,0.06)', borderRadius: '999px', height: '4px' }}>
                     <div
                       style={{
                         height: '4px',
@@ -450,8 +449,8 @@ export default function ScoreEngine() {
                     width: '64px',
                     height: '64px',
                     borderRadius: '50%',
-                    background: 'rgba(41,151,255,0.08)',
-                    border: '1px solid rgba(41,151,255,0.15)',
+                    background: 'rgba(0,113,227,0.06)',
+                    border: '1px solid rgba(0,113,227,0.1)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -516,7 +515,7 @@ export default function ScoreEngine() {
 
                   {/* Score gap bar */}
                   <div style={{ marginBottom: '12px' }}>
-                    <div style={{ background: 'rgba(255,255,255,0.06)', borderRadius: '999px', height: '3px', position: 'relative' }}>
+                    <div style={{ background: 'rgba(0,0,0,0.06)', borderRadius: '999px', height: '3px', position: 'relative' }}>
                       <div style={{
                         position: 'absolute',
                         left: `${(profile.fico_estimate / 850) * 100}%`,

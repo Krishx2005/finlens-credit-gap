@@ -44,7 +44,7 @@ const colorVar = (name) => {
 
 function MetricRow({ label, value, color = 'default' }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
       <span style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>{label}</span>
       <span style={{ fontSize: '13px', fontFamily: 'ui-monospace, monospace', fontWeight: 500, color: colorVar(color) }}>{value}</span>
     </div>
@@ -85,7 +85,7 @@ export default function GeographyMap() {
       <div
         style={{
           padding: '0 24px',
-          borderBottom: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid rgba(0,0,0,0.08)',
           display: 'flex',
           alignItems: 'center',
           gap: '16px',
@@ -111,8 +111,8 @@ export default function GeographyMap() {
               onClick={() => setActiveMetric(opt.key)}
               className="pill-btn"
               style={activeMetric === opt.key ? {
-                background: 'rgba(41,151,255,0.15)',
-                borderColor: 'rgba(41,151,255,0.4)',
+                background: 'rgba(0,113,227,0.1)',
+                borderColor: 'rgba(0,113,227,0.3)',
                 color: 'var(--accent)',
               } : {}}
             >
@@ -127,8 +127,8 @@ export default function GeographyMap() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search county…"
           style={{
-            background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            background: '#ffffff',
+            border: '1px solid rgba(0,0,0,0.1)',
             borderRadius: '10px',
             padding: '7px 14px',
             fontSize: '13px',
@@ -175,15 +175,15 @@ export default function GeographyMap() {
                       key={county.county_fips}
                       onClick={() => setSelectedCounty(county)}
                       style={{
-                        background: isSelected ? 'rgba(41,151,255,0.08)' : 'rgba(255,255,255,0.03)',
-                        border: `1px solid ${isSelected ? 'rgba(41,151,255,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                        background: isSelected ? 'rgba(0,113,227,0.06)' : 'rgba(0,0,0,0.02)',
+                        border: `1px solid ${isSelected ? 'rgba(0,113,227,0.25)' : 'rgba(0,0,0,0.07)'}`,
                         borderRadius: '12px',
                         padding: '12px 14px',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                       }}
-                      onMouseEnter={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' } }}
-                      onMouseLeave={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'; e.currentTarget.style.background = 'rgba(255,255,255,0.03)' } }}
+                      onMouseEnter={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.12)'; e.currentTarget.style.background = 'rgba(0,0,0,0.04)' } }}
+                      onMouseLeave={(e) => { if (!isSelected) { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.07)'; e.currentTarget.style.background = 'rgba(0,0,0,0.02)' } }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                         <div>
@@ -217,8 +217,8 @@ export default function GeographyMap() {
             style={{
               width: '300px',
               flexShrink: 0,
-              borderLeft: '1px solid rgba(255,255,255,0.06)',
-              background: 'rgba(255,255,255,0.02)',
+              borderLeft: '1px solid rgba(0,0,0,0.08)',
+              background: 'rgba(0,0,0,0.01)',
               padding: '24px',
               overflowY: 'auto',
             }}
@@ -256,12 +256,12 @@ export default function GeographyMap() {
 
             <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {selectedCounty.credit_desert && (
-                <div style={{ padding: '10px 12px', background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: '10px', fontSize: '12px', color: 'var(--danger)' }}>
+                <div style={{ padding: '10px 12px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', borderRadius: '10px', fontSize: '12px', color: 'var(--danger)' }}>
                   ⚠ Credit Desert — high denial despite adequate income
                 </div>
               )}
               {selectedCounty.is_rural && (
-                <div style={{ padding: '10px 12px', background: 'rgba(255,159,10,0.08)', border: '1px solid rgba(255,159,10,0.2)', borderRadius: '10px', fontSize: '12px', color: 'var(--warning)' }}>
+                <div style={{ padding: '10px 12px', background: 'rgba(183,149,11,0.08)', border: '1px solid rgba(183,149,11,0.2)', borderRadius: '10px', fontSize: '12px', color: 'var(--warning)' }}>
                   ⬡ Rural county
                 </div>
               )}

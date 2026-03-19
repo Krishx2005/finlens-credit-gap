@@ -8,11 +8,11 @@ import { getComplaints, getComplaintSummary } from '../api'
 const PRODUCTS = ['All', 'Mortgage', 'Credit card', 'Student loan', 'Debt collection', 'Credit reporting', 'Personal loan', 'Bank account']
 const STATES = ['All', 'CA', 'TX', 'FL', 'NY', 'IL', 'PA', 'OH', 'GA', 'NC', 'MI']
 
-const TREEMAP_COLORS = ['#2997ff', '#30d158', '#ff9f0a', '#ff453a', '#bf5af2', '#32d2ff', '#ff6961', '#adf7b6']
+const TREEMAP_COLORS = ['#0071e3', '#1d8348', '#b7950b', '#c0392b', '#bf5af2', '#32d2ff', '#ff6961', '#adf7b6']
 
 const tooltipStyle = {
-  background: 'rgba(0,0,0,0.85)',
-  border: '1px solid rgba(255,255,255,0.1)',
+  background: 'rgba(255,255,255,0.95)',
+  border: '1px solid rgba(0,0,0,0.1)',
   borderRadius: '10px',
   backdropFilter: 'blur(20px)',
   fontSize: '12px',
@@ -25,7 +25,7 @@ function CustomTreemapContent({ root, depth, x, y, width, height, index, name, v
     <g>
       <rect
         x={x + 1} y={y + 1} width={width - 2} height={height - 2}
-        style={{ fill: TREEMAP_COLORS[index % TREEMAP_COLORS.length], stroke: '#000', strokeWidth: 2, opacity: 0.85 }}
+        style={{ fill: TREEMAP_COLORS[index % TREEMAP_COLORS.length], stroke: 'rgba(0,0,0,0.08)', strokeWidth: 2, opacity: 0.85 }}
         rx={6}
       />
       {width > 60 && height > 30 && (
@@ -71,8 +71,8 @@ function ChartCard({ title, subtitle, children }) {
 }
 
 const selectStyle = {
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.1)',
+  background: '#ffffff',
+  border: '1px solid rgba(0,0,0,0.12)',
   borderRadius: '8px',
   padding: '7px 12px',
   fontSize: '13px',
@@ -166,7 +166,7 @@ export default function ComplaintExplorer() {
 
         {/* Header */}
         <div style={{ paddingTop: '48px', paddingBottom: '40px' }}>
-          <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(41,151,255,0.1)', border: '1px solid rgba(41,151,255,0.2)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
+          <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(0,113,227,0.08)', border: '1px solid rgba(0,113,227,0.15)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
             CFPB Data
           </div>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text-primary)', margin: '0 0 12px' }}>
@@ -178,7 +178,7 @@ export default function ComplaintExplorer() {
         </div>
 
         {summaryError && (
-          <div style={{ marginBottom: '16px', padding: '12px 16px', background: 'rgba(255,159,10,0.08)', border: '1px solid rgba(255,159,10,0.2)', borderRadius: '12px', fontSize: '13px', color: 'var(--warning)' }}>
+          <div style={{ marginBottom: '16px', padding: '12px 16px', background: 'rgba(183,149,11,0.08)', border: '1px solid rgba(183,149,11,0.2)', borderRadius: '12px', fontSize: '13px', color: 'var(--warning)' }}>
             Summary unavailable: {summaryError}
           </div>
         )}
@@ -199,7 +199,7 @@ export default function ComplaintExplorer() {
             {topCompanies.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={topCompanies} layout="vertical" barSize={12}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" horizontal={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" horizontal={false} />
                   <XAxis type="number" tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis type="category" dataKey="name" tick={{ fill: 'var(--text-secondary)', fontSize: 10 }} width={130} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={tooltipStyle} formatter={(v) => [v.toLocaleString(), 'Complaints']} />
@@ -213,7 +213,7 @@ export default function ComplaintExplorer() {
             {monthlyTrend.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
                 <LineChart data={monthlyTrend}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
                   <XAxis dataKey="month" tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={tooltipStyle} formatter={(v) => [v.toLocaleString(), 'Complaints']} />
@@ -234,7 +234,7 @@ export default function ComplaintExplorer() {
                 </ResponsiveContainer>
                 <div style={{ marginTop: '16px', maxHeight: '160px', overflowY: 'auto' }}>
                   {legendIssues.map((item, i) => (
-                    <div key={item.issue} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                    <div key={item.issue} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                         <div style={{ width: '8px', height: '8px', borderRadius: '2px', flexShrink: 0, background: TREEMAP_COLORS[i % TREEMAP_COLORS.length] }} />
                         <span style={{ fontSize: '12px', color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.issue}</span>
@@ -261,7 +261,7 @@ export default function ComplaintExplorer() {
             {stateData.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
                 <BarChart data={stateData} barSize={20}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
                   <XAxis dataKey="name" tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={tooltipStyle} formatter={(v) => [v.toLocaleString(), 'Complaints']} />
@@ -284,13 +284,13 @@ export default function ComplaintExplorer() {
           <div>
             <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '6px' }}>Product</div>
             <select value={filters.product} onChange={(e) => { setFilters({ ...filters, product: e.target.value }); setPage(1) }} style={selectStyle}>
-              {PRODUCTS.map((p) => <option key={p} value={p} style={{ background: '#1a1a1a' }}>{p}</option>)}
+              {PRODUCTS.map((p) => <option key={p} value={p} style={{ background: '#ffffff' }}>{p}</option>)}
             </select>
           </div>
           <div>
             <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '6px' }}>State</div>
             <select value={filters.state} onChange={(e) => { setFilters({ ...filters, state: e.target.value }); setPage(1) }} style={selectStyle}>
-              {STATES.map((s) => <option key={s} value={s} style={{ background: '#1a1a1a' }}>{s}</option>)}
+              {STATES.map((s) => <option key={s} value={s} style={{ background: '#ffffff' }}>{s}</option>)}
             </select>
           </div>
           <div>
@@ -308,7 +308,7 @@ export default function ComplaintExplorer() {
         </div>
 
         {listError && (
-          <div style={{ marginBottom: '16px', padding: '12px 16px', background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: '12px', fontSize: '13px', color: 'var(--danger)' }}>
+          <div style={{ marginBottom: '16px', padding: '12px 16px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', borderRadius: '12px', fontSize: '13px', color: 'var(--danger)' }}>
             {listError}
           </div>
         )}
@@ -317,7 +317,7 @@ export default function ComplaintExplorer() {
         <div className="glass-card" style={{ borderRadius: '16px', overflow: 'hidden' }}>
           <table style={{ width: '100%', fontSize: '13px', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+              <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.07)' }}>
                 {['Date', 'Company', 'Product', 'Issue', 'State', 'Timely', 'Disputed'].map((h) => (
                   <th key={h} style={{ textAlign: 'left', padding: '12px 16px', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', fontWeight: 500 }}>
                     {h}
@@ -332,8 +332,8 @@ export default function ComplaintExplorer() {
                 <tr><td colSpan={7} style={{ textAlign: 'center', padding: '48px', color: 'var(--text-tertiary)', fontSize: '13px' }}>No complaints found</td></tr>
               ) : (
                 complaints.map((c, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', transition: 'background 0.1s ease' }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.025)'}
+                  <tr key={i} style={{ borderBottom: '1px solid rgba(0,0,0,0.04)', transition: 'background 0.1s ease' }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.025)'}
                     onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
                     <td style={{ padding: '10px 16px', fontSize: '12px', fontFamily: 'ui-monospace, monospace', color: 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>
@@ -366,7 +366,7 @@ export default function ComplaintExplorer() {
           </table>
 
           {total > PAGE_SIZE && (
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderTop: '1px solid rgba(0,0,0,0.06)' }}>
               <span style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontFamily: 'ui-monospace, monospace' }}>
                 Page {page} of {Math.ceil(total / PAGE_SIZE)}
               </span>

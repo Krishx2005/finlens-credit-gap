@@ -6,8 +6,8 @@ import {
 import { runQuery, getQueryExamples, getQueryHistory } from '../api'
 
 const tooltipStyle = {
-  background: 'rgba(0,0,0,0.85)',
-  border: '1px solid rgba(255,255,255,0.1)',
+  background: 'rgba(255,255,255,0.95)',
+  border: '1px solid rgba(0,0,0,0.1)',
   borderRadius: '10px',
   backdropFilter: 'blur(20px)',
   fontSize: '12px',
@@ -31,8 +31,8 @@ function SqlBlock({ sql }) {
         <pre style={{
           marginTop: '10px',
           padding: '16px',
-          background: 'rgba(41,151,255,0.04)',
-          border: '1px solid rgba(41,151,255,0.15)',
+          background: 'rgba(0,113,227,0.03)',
+          border: '1px solid rgba(0,113,227,0.12)',
           borderRadius: '12px',
           fontSize: '12px',
           fontFamily: 'ui-monospace, monospace',
@@ -61,7 +61,7 @@ function ResultChart({ data, chartType }) {
     return (
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
           <XAxis dataKey={labelKey} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
           <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
           <Tooltip contentStyle={tooltipStyle} />
@@ -75,7 +75,7 @@ function ResultChart({ data, chartType }) {
     return (
       <ResponsiveContainer width="100%" height={220}>
         <ScatterChart>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
           <XAxis dataKey={numericKeys[0]} name={numericKeys[0]} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} />
           <YAxis dataKey={numericKeys[1]} name={numericKeys[1]} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} />
           <Tooltip contentStyle={tooltipStyle} />
@@ -88,7 +88,7 @@ function ResultChart({ data, chartType }) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={chartData} barSize={28}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
         <XAxis dataKey={labelKey} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
         <Tooltip contentStyle={tooltipStyle} />
@@ -105,7 +105,7 @@ function ResultTable({ data }) {
     <div style={{ overflowX: 'auto' }}>
       <table style={{ width: '100%', fontSize: '12px', borderCollapse: 'collapse' }}>
         <thead>
-          <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <tr style={{ borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
             {cols.map((c) => (
               <th key={c} style={{ textAlign: 'left', padding: '8px 12px', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', fontWeight: 500, whiteSpace: 'nowrap' }}>
                 {c}
@@ -115,8 +115,8 @@ function ResultTable({ data }) {
         </thead>
         <tbody>
           {data.slice(0, 50).map((row, i) => (
-            <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.03)', transition: 'background 0.1s' }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.025)'}
+            <tr key={i} style={{ borderBottom: '1px solid rgba(0,0,0,0.03)', transition: 'background 0.1s' }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.025)'}
               onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
             >
               {cols.map((c) => (
@@ -187,7 +187,7 @@ export default function QueryLab() {
 
         {/* Header */}
         <div style={{ paddingTop: '48px', paddingBottom: '40px' }}>
-          <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(41,151,255,0.1)', border: '1px solid rgba(41,151,255,0.2)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
+          <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(0,113,227,0.08)', border: '1px solid rgba(0,113,227,0.15)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
             AI Analysis
           </div>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text-primary)', margin: '0 0 12px' }}>
@@ -208,8 +208,8 @@ export default function QueryLab() {
               placeholder="Ask anything about US credit data…"
               style={{
                 flex: 1,
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: '#ffffff',
+                border: '1px solid rgba(0,0,0,0.16)',
                 borderRadius: '12px',
                 padding: '12px 16px',
                 color: 'var(--text-primary)',
@@ -222,7 +222,7 @@ export default function QueryLab() {
               disabled={loading || !question.trim()}
               style={{
                 padding: '12px 24px',
-                background: loading || !question.trim() ? 'rgba(41,151,255,0.4)' : 'var(--accent)',
+                background: loading || !question.trim() ? 'rgba(0,113,227,0.4)' : 'var(--accent)',
                 color: '#fff',
                 fontWeight: 500,
                 fontSize: '14px',
@@ -259,7 +259,7 @@ export default function QueryLab() {
 
         {/* Error */}
         {error && (
-          <div style={{ marginBottom: '24px', padding: '12px 16px', background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: '12px', fontSize: '13px', color: 'var(--danger)' }}>
+          <div style={{ marginBottom: '24px', padding: '12px 16px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', borderRadius: '12px', fontSize: '13px', color: 'var(--danger)' }}>
             {error}
           </div>
         )}
@@ -283,7 +283,7 @@ export default function QueryLab() {
                 Analysis
               </div>
               {result.cached && (
-                <span style={{ padding: '2px 10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '999px', fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'ui-monospace, monospace' }}>
+                <span style={{ padding: '2px 10px', background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '999px', fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'ui-monospace, monospace' }}>
                   ↩ cached
                 </span>
               )}
@@ -310,7 +310,7 @@ export default function QueryLab() {
                 {result.results?.length > 0 && (
                   <button
                     onClick={() => exportCsv(result.results)}
-                    style={{ fontSize: '12px', fontFamily: 'ui-monospace, monospace', color: 'var(--accent)', background: 'none', border: '1px solid rgba(41,151,255,0.3)', borderRadius: '8px', padding: '4px 12px', cursor: 'pointer', transition: 'all 0.15s' }}
+                    style={{ fontSize: '12px', fontFamily: 'ui-monospace, monospace', color: 'var(--accent)', background: 'none', border: '1px solid rgba(0,113,227,0.25)', borderRadius: '8px', padding: '4px 12px', cursor: 'pointer', transition: 'all 0.15s' }}
                   >
                     Export CSV ↓
                   </button>
@@ -335,7 +335,7 @@ export default function QueryLab() {
                   key={i}
                   onClick={() => handleQuery(h.question)}
                   style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '10px 12px', borderRadius: '10px', background: 'none', border: 'none', cursor: 'pointer', transition: 'background 0.1s' }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                  onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.04)'}
                   onMouseLeave={(e) => e.currentTarget.style.background = 'none'}
                 >
                   <span style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', color: 'var(--text-tertiary)', marginTop: '2px', minWidth: '24px' }}>#{i + 1}</span>

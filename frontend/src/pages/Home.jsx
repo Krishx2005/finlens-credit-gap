@@ -59,8 +59,8 @@ const FINDING_CARDS = [
   {
     badge: 'Credit Access',
     color: 'var(--danger)',
-    colorBg: 'rgba(255,69,58,0.08)',
-    colorBorder: 'rgba(255,69,58,0.2)',
+    colorBg: 'rgba(192,57,43,0.08)',
+    colorBorder: 'rgba(192,57,43,0.2)',
     title: 'Credit Deserts',
     metric: '847',
     desc: 'Counties where denial rates exceed 40% despite household incomes above $40K. Geography penalizes creditworthy borrowers.',
@@ -68,8 +68,8 @@ const FINDING_CARDS = [
   {
     badge: 'Rural Penalty',
     color: 'var(--warning)',
-    colorBg: 'rgba(255,159,10,0.08)',
-    colorBorder: 'rgba(255,159,10,0.2)',
+    colorBg: 'rgba(183,149,11,0.08)',
+    colorBorder: 'rgba(183,149,11,0.2)',
     title: 'The Rural Premium',
     metric: '+23%',
     desc: 'Rural applicants face a 23-point higher denial rate than urban counterparts at identical income levels. FICO doesn\'t account for this.',
@@ -77,8 +77,8 @@ const FINDING_CARDS = [
   {
     badge: 'Score Gap',
     color: 'var(--accent)',
-    colorBg: 'rgba(41,151,255,0.08)',
-    colorBorder: 'rgba(41,151,255,0.2)',
+    colorBg: 'rgba(0,113,227,0.08)',
+    colorBorder: 'rgba(0,113,227,0.2)',
     title: 'The Hidden Gap',
     metric: '73 pts',
     desc: 'On average, rural borrowers\' alternative credit scores are 73 points higher than their FICO estimates suggest. This gap disappears when you look at structural access.',
@@ -89,7 +89,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null
   return (
     <div className="glass-card rounded-xl px-4 py-3 text-xs">
-      <div className="font-medium text-white mb-1">{label}</div>
+      <div className="font-medium mb-1" style={{ color: 'var(--text-primary)' }}>{label}</div>
       <div style={{ color: 'var(--accent)' }}>{payload[0].value}% denial rate</div>
     </div>
   )
@@ -112,13 +112,14 @@ export default function Home() {
       <section
         ref={heroRef}
         className="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-6 overflow-hidden"
+        style={{ background: '#f5f5f7' }}
       >
         {/* Gradient orbs */}
         <div
           className="orb animate-orb-float"
           style={{
             width: 600, height: 600,
-            background: 'radial-gradient(circle, rgba(41,151,255,0.3) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(0,113,227,0.12) 0%, transparent 70%)',
             top: '5%', left: '20%',
           }}
         />
@@ -126,7 +127,7 @@ export default function Home() {
           className="orb animate-orb-float-alt"
           style={{
             width: 400, height: 400,
-            background: 'radial-gradient(circle, rgba(48,209,88,0.15) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(29,131,72,0.06) 0%, transparent 70%)',
             top: '40%', right: '15%',
           }}
         />
@@ -135,8 +136,8 @@ export default function Home() {
           <div
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono mb-8"
             style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'rgba(0,0,0,0.03)',
+              border: '1px solid rgba(0,0,0,0.08)',
               color: 'var(--text-secondary)',
               letterSpacing: '0.08em',
             }}
@@ -173,7 +174,7 @@ export default function Home() {
               className="px-6 py-3 text-sm font-semibold rounded-xl text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               style={{
                 background: 'var(--accent)',
-                boxShadow: '0 0 24px rgba(41,151,255,0.3)',
+                boxShadow: '0 0 24px rgba(0,113,227,0.25)',
               }}
             >
               Calculate Your Score
@@ -182,8 +183,8 @@ export default function Home() {
               onClick={() => navigate('/map')}
               className="px-6 py-3 text-sm font-medium rounded-xl transition-all duration-200 hover:scale-[1.02]"
               style={{
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(0,0,0,0.04)',
+                border: '1px solid rgba(0,0,0,0.1)',
                 color: 'var(--text-primary)',
               }}
             >
@@ -193,8 +194,8 @@ export default function Home() {
               onClick={() => navigate('/query')}
               className="px-6 py-3 text-sm font-medium rounded-xl transition-all duration-200 hover:scale-[1.02]"
               style={{
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'rgba(0,0,0,0.04)',
+                border: '1px solid rgba(0,0,0,0.1)',
                 color: 'var(--text-primary)',
               }}
             >
@@ -352,13 +353,13 @@ export default function Home() {
               </p>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={RURAL_URBAN_DATA} barSize={42}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                  <XAxis dataKey="label" tick={{ fill: '#86868b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#86868b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[0, 60]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+                  <XAxis dataKey="label" tick={{ fill: '#6e6e73', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#6e6e73', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[0, 60]} />
                   <Tooltip content={<CustomTooltip />} />
                   <Bar dataKey="denial" radius={[6, 6, 0, 0]}>
                     {RURAL_URBAN_DATA.map((_, i) => (
-                      <Cell key={i} fill={i < 2 ? '#30d158' : i === 2 ? '#ff9f0a' : '#ff453a'} fillOpacity={0.85} />
+                      <Cell key={i} fill={i < 2 ? '#1d8348' : i === 2 ? '#b7950b' : '#c0392b'} fillOpacity={0.85} />
                     ))}
                   </Bar>
                 </BarChart>
@@ -377,15 +378,15 @@ export default function Home() {
               </p>
               <ResponsiveContainer width="100%" height={220}>
                 <BarChart data={AGE_DATA} barSize={42}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
-                  <XAxis dataKey="label" tick={{ fill: '#86868b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: '#86868b', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[0, 60]} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+                  <XAxis dataKey="label" tick={{ fill: '#6e6e73', fontSize: 11 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: '#6e6e73', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} domain={[0, 60]} />
                   <Tooltip content={<CustomTooltip />} />
                   <Bar dataKey="denial" radius={[6, 6, 0, 0]}>
                     {AGE_DATA.map((_, i) => (
                       <Cell
                         key={i}
-                        fill={i === 0 ? '#ff453a' : i === 1 ? '#ff9f0a' : i === 2 ? '#ff9f0a' : '#30d158'}
+                        fill={i === 0 ? '#c0392b' : i === 1 ? '#b7950b' : i === 2 ? '#b7950b' : '#1d8348'}
                         fillOpacity={0.85}
                       />
                     ))}

@@ -24,12 +24,12 @@ export default function Navbar() {
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
         background: scrolled
-          ? 'rgba(0,0,0,0.78)'
-          : 'rgba(0,0,0,0.5)',
+          ? 'rgba(255,255,255,0.85)'
+          : 'rgba(255,255,255,0.72)',
         backdropFilter: 'blur(20px) saturate(180%)',
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
         borderBottom: scrolled
-          ? '1px solid rgba(255,255,255,0.07)'
+          ? '1px solid rgba(0,0,0,0.1)'
           : '1px solid transparent',
         height: '48px',
       }}
@@ -37,7 +37,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
         {/* Logo */}
         <NavLink to="/" className="flex items-center gap-2 group">
-          <span className="text-sm font-semibold tracking-tight text-white">
+          <span className="text-sm font-semibold tracking-tight" style={{ color: 'var(--text-primary)' }}>
             Fin<span style={{ color: 'var(--accent)' }}>Lens</span>
           </span>
           <span
@@ -58,8 +58,8 @@ export default function Navbar() {
               className={({ isActive }) =>
                 `relative px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-150 ${
                   isActive
-                    ? 'text-white'
-                    : 'text-[#86868b] hover:text-white'
+                    ? 'text-[#1d1d1f]'
+                    : 'text-[#6e6e73] hover:text-[#1d1d1f]'
                 }`
               }
             >
@@ -68,7 +68,7 @@ export default function Navbar() {
                   {isActive && (
                     <span
                       className="absolute inset-0 rounded-lg"
-                      style={{ background: 'rgba(255,255,255,0.07)' }}
+                      style={{ background: 'rgba(0,0,0,0.05)' }}
                     />
                   )}
                   <span className="relative">{label}</span>

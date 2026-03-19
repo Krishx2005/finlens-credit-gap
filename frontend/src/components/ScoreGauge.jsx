@@ -19,7 +19,7 @@ export default function ScoreGauge({ score, grade, label = 'Alternative Score' }
 
   return (
     <div className="flex flex-col items-center gap-3 score-reveal">
-      <div className="text-xs font-mono uppercase tracking-widest text-gray-400">{label}</div>
+      <div className="text-xs font-mono uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>{label}</div>
 
       {/* Arc gauge */}
       <div className="relative w-48 h-28 overflow-hidden">
@@ -28,7 +28,7 @@ export default function ScoreGauge({ score, grade, label = 'Alternative Score' }
           <path
             d="M 20 100 A 80 80 0 0 1 180 100"
             fill="none"
-            stroke="#1f2937"
+            stroke="#e5e7eb"
             strokeWidth="16"
             strokeLinecap="round"
           />
@@ -59,15 +59,15 @@ export default function ScoreGauge({ score, grade, label = 'Alternative Score' }
           {grade}
         </span>
         <div className="text-left">
-          <div className="text-xs text-gray-400">Score Band</div>
-          <div className="text-sm font-medium">
+          <div className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Score Band</div>
+          <div className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>
             {score >= 750 ? 'Excellent' : score >= 650 ? 'Good' : score >= 550 ? 'Fair' : score >= 450 ? 'Poor' : 'Very Poor'}
           </div>
         </div>
       </div>
 
       {/* Range labels */}
-      <div className="flex justify-between w-48 text-xs text-gray-500 font-mono">
+      <div className="flex justify-between w-48 text-xs font-mono" style={{ color: 'var(--text-tertiary)' }}>
         <span>300</span>
         <span>575</span>
         <span>850</span>

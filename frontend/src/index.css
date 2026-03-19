@@ -4,18 +4,18 @@
 
 /* ─── CSS Variables ──────────────────────────────────────────────────── */
 :root {
-  --bg: #000000;
-  --surface: #111111;
-  --surface-elevated: #1a1a1a;
-  --border: rgba(255, 255, 255, 0.08);
-  --border-hover: rgba(255, 255, 255, 0.15);
-  --text-primary: #f5f5f7;
-  --text-secondary: #86868b;
-  --text-tertiary: #515154;
-  --accent: #2997ff;
-  --positive: #30d158;
-  --warning: #ff9f0a;
-  --danger: #ff453a;
+  --bg: #ffffff;
+  --surface: #f5f5f7;
+  --surface-elevated: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-hover: rgba(0, 0, 0, 0.16);
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #aeaeb2;
+  --accent: #0071e3;
+  --positive: #1d8348;
+  --warning: #b7950b;
+  --danger: #c0392b;
   --navbar-height: 48px;
 }
 
@@ -48,34 +48,34 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.25);
 }
 
 /* ─── Glassmorphism ──────────────────────────────────────────────────── */
 .glass {
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(0, 0, 0, 0.03);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border);
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.03);
+  background: #ffffff;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
 }
 
 .glass-navbar {
-  background: rgba(0, 0, 0, 0.72);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 /* ─── Typography ─────────────────────────────────────────────────────── */
@@ -130,41 +130,41 @@ h1, h2, h3, h4, h5, h6 {
 .orb {
   border-radius: 50%;
   filter: blur(80px);
-  opacity: 0.25;
+  opacity: 0.12;
   pointer-events: none;
   position: absolute;
 }
 
 /* ─── Gradient Text ──────────────────────────────────────────────────── */
 .gradient-text {
-  background: linear-gradient(135deg, #f5f5f7 0%, #86868b 100%);
+  background: linear-gradient(135deg, #1d1d1f 0%, #6e6e73 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .gradient-text-blue {
-  background: linear-gradient(135deg, #2997ff 0%, #60b4ff 100%);
+  background: linear-gradient(135deg, #0071e3 0%, #004499 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* ─── Leaflet Dark Theme ─────────────────────────────────────────────── */
+/* ─── Leaflet Light Theme ────────────────────────────────────────────── */
 .leaflet-container {
-  background: #111111 !important;
+  background: #f5f5f7 !important;
 }
 
 .leaflet-popup-content-wrapper {
-  background: #1a1a1a;
-  color: #f5f5f7;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #ffffff;
+  color: #1d1d1f;
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .leaflet-popup-tip {
-  background: #1a1a1a;
+  background: #ffffff;
 }
 
 /* ─── Card Hover Effect ──────────────────────────────────────────────── */
@@ -176,17 +176,17 @@ h1, h2, h3, h4, h5, h6 {
 
 .card-hover:hover {
   transform: translateY(-2px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
-  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.16);
 }
 
 /* ─── Shimmer Loading ────────────────────────────────────────────────── */
 .shimmer {
   background: linear-gradient(
     90deg,
-    rgba(255,255,255,0.03) 0%,
-    rgba(255,255,255,0.07) 50%,
-    rgba(255,255,255,0.03) 100%
+    rgba(0,0,0,0.04) 0%,
+    rgba(0,0,0,0.08) 50%,
+    rgba(0,0,0,0.04) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
@@ -206,20 +206,20 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 0.75rem;
   font-weight: 500;
   transition: all 0.15s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.04);
-  color: #86868b;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(0, 0, 0, 0.02);
+  color: #6e6e73;
   cursor: pointer;
 }
 
 .pill-btn:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  color: #f5f5f7;
-  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(0, 0, 0, 0.2);
+  color: #1d1d1f;
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .pill-btn.active {
-  background: rgba(41, 151, 255, 0.15);
-  border-color: rgba(41, 151, 255, 0.4);
-  color: #2997ff;
+  background: rgba(0, 113, 227, 0.1);
+  border-color: rgba(0, 113, 227, 0.3);
+  color: #0071e3;
 }

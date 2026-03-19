@@ -79,7 +79,7 @@ export default function Reports() {
 
         {/* Header */}
         <div style={{ paddingTop: '48px', paddingBottom: '40px' }}>
-          <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(41,151,255,0.1)', border: '1px solid rgba(41,151,255,0.2)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
+          <div style={{ display: 'inline-block', fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', background: 'rgba(0,113,227,0.08)', border: '1px solid rgba(0,113,227,0.15)', padding: '4px 12px', borderRadius: '999px', marginBottom: '20px' }}>
             Export
           </div>
           <h1 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 700, letterSpacing: '-0.03em', color: 'var(--text-primary)', margin: '0 0 12px' }}>
@@ -110,8 +110,8 @@ export default function Reports() {
                         textAlign: 'left',
                         padding: '14px 16px',
                         borderRadius: '12px',
-                        border: `1px solid ${isActive ? rt.color + '40' : 'rgba(255,255,255,0.07)'}`,
-                        background: isActive ? rt.color + '0f' : 'rgba(255,255,255,0.02)',
+                        border: `1px solid ${isActive ? rt.color + '40' : 'rgba(0,0,0,0.07)'}`,
+                        background: isActive ? rt.color + '0f' : 'rgba(0,0,0,0.02)',
                         cursor: 'pointer',
                         transition: 'all 0.15s ease',
                       }}
@@ -137,7 +137,7 @@ export default function Reports() {
               style={{
                 width: '100%',
                 padding: '14px',
-                background: downloading ? 'rgba(41,151,255,0.5)' : 'var(--accent)',
+                background: downloading ? 'rgba(0,113,227,0.5)' : 'var(--accent)',
                 color: '#fff',
                 fontWeight: 500,
                 fontSize: '14px',
@@ -165,7 +165,7 @@ export default function Reports() {
             </button>
 
             {downloadError && (
-              <div style={{ padding: '12px 14px', background: 'rgba(255,69,58,0.08)', border: '1px solid rgba(255,69,58,0.2)', borderRadius: '12px', fontSize: '12px', color: 'var(--danger)' }}>
+              <div style={{ padding: '12px 14px', background: 'rgba(192,57,43,0.08)', border: '1px solid rgba(192,57,43,0.2)', borderRadius: '12px', fontSize: '12px', color: 'var(--danger)' }}>
                 {downloadError}
               </div>
             )}
@@ -184,7 +184,7 @@ export default function Reports() {
                 </div>
                 <div style={{ fontSize: '12px', fontFamily: 'ui-monospace, monospace', color: 'var(--text-tertiary)' }}>Preview</div>
               </div>
-              <div style={{ padding: '4px 12px', background: 'rgba(41,151,255,0.1)', border: '1px solid rgba(41,151,255,0.25)', borderRadius: '999px', fontSize: '11px', fontFamily: 'ui-monospace, monospace', color: 'var(--accent)', letterSpacing: '0.06em' }}>
+              <div style={{ padding: '4px 12px', background: 'rgba(0,113,227,0.08)', border: '1px solid rgba(0,113,227,0.2)', borderRadius: '999px', fontSize: '11px', fontFamily: 'ui-monospace, monospace', color: 'var(--accent)', letterSpacing: '0.06em' }}>
                 PDF
               </div>
             </div>
@@ -192,16 +192,16 @@ export default function Reports() {
             {/* Report preview doc */}
             <div
               style={{
-                background: 'rgba(0,0,0,0.4)',
+                background: 'rgba(0,0,0,0.025)',
                 borderRadius: '14px',
-                border: '1px solid rgba(255,255,255,0.06)',
+                border: '1px solid rgba(0,0,0,0.06)',
                 padding: '24px',
                 fontFamily: 'ui-monospace, monospace',
                 fontSize: '12px',
               }}
             >
               {/* Doc header */}
-              <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)', paddingBottom: '16px', marginBottom: '20px' }}>
+              <div style={{ borderBottom: '1px solid rgba(0,0,0,0.06)', paddingBottom: '16px', marginBottom: '20px' }}>
                 <div style={{ fontSize: '15px', fontWeight: 700, color: reportType?.color, marginBottom: '6px' }}>
                   FinLens — {reportType?.label}
                 </div>
@@ -225,7 +225,7 @@ export default function Reports() {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                       {preview.key_metrics && Object.entries(preview.key_metrics).slice(0, 4).map(([key, val]) => (
-                        <div key={key} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '10px', padding: '12px' }}>
+                        <div key={key} style={{ background: 'rgba(0,0,0,0.03)', borderRadius: '10px', padding: '12px' }}>
                           <div style={{ fontSize: '11px', color: 'var(--text-tertiary)', marginBottom: '4px', textTransform: 'capitalize' }}>
                             {key.replace(/_/g, ' ')}
                           </div>
@@ -270,7 +270,7 @@ export default function Reports() {
               </div>
 
               {/* Footer */}
-              <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.06)', fontSize: '11px', color: 'var(--text-tertiary)', lineHeight: 1.6 }}>
+              <div style={{ marginTop: '20px', paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.06)', fontSize: '11px', color: 'var(--text-tertiary)', lineHeight: 1.6 }}>
                 This report is based on publicly available federal datasets and does not constitute financial advice.
               </div>
             </div>
@@ -289,8 +289,8 @@ export default function Reports() {
                       alignItems: 'center',
                       gap: '6px',
                       padding: '5px 12px',
-                      background: 'rgba(255,255,255,0.04)',
-                      border: '1px solid rgba(255,255,255,0.08)',
+                      background: 'rgba(0,0,0,0.03)',
+                      border: '1px solid rgba(0,0,0,0.07)',
                       borderRadius: '8px',
                     }}
                   >
