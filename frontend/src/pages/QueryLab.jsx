@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, ScatterChart, Scatter
+  LineChart, Line, ScatterChart, Scatter, Legend
 } from 'recharts'
 import { runQuery, getQueryExamples, getQueryHistory } from '../api'
 
@@ -48,39 +48,83 @@ function SqlBlock({ sql }) {
   )
 }
 
-function ResultChart({ data, chartType }) {
-  if (!data || data.length === 0) return null
-  const keys = Object.keys(data[0] || {})
-  const numericKeys = keys.filter((k) => typeof data[0][k] === 'number')
-  const labelKey = keys.find((k) => typeof data[0][k] === 'string') || keys[0]
-  const valueKey = numericKeys[0]
-  if (!valueKey) return null
-  const chartData = data.slice(0, 20)
+const BAR_COLORS = ['var(--accent)', 'var(--positive)', 'var(--warning)', 'var(--danger)', '#8b5cf6']
+const DATE_KEYS = ['date', 'month', 'year', 'week', 'period', 'time', 'quarter']
 
-  if (chartType === 'line') {
+function isNumeric(val) {
+  if (typeof val === 'number') return true
+  if (typeof val === 'string') return val.trim() !== '' && !isNaN(Number(val))
+  return false
+}
+
+function coerceNumeric(data) {
+  if (!data || data.length === 0) return data
+  const keys = Object.keys(data[0])
+  const numericKeys = keys.filter((k) => isNumeric(data[0][k]))
+  if (numericKeys.length === 0) return data
+  return data.map((row) => {
+    const next = { ...row }
+    numericKeys.forEach((k) => { next[k] = Number(next[k]) })
+    return next
+  })
+}
+
+function ResultChart({ data }) {
+  if (!data || data.length === 0) return null
+
+  const coerced = coerceNumeric(data)
+  const keys = Object.keys(coerced[0])
+  const numericKeys = keys.filter((k) => typeof coerced[0][k] === 'number')
+  const stringKeys = keys.filter((k) => typeof coerced[0][k] === 'string')
+
+  if (numericKeys.length === 0) {
     return (
-      <ResponsiveContainer width="100%" height={220}>
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-          <XAxis dataKey={labelKey} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
-          <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
-          <Tooltip contentStyle={tooltipStyle} />
-          <Line type="monotone" dataKey={valueKey} stroke="var(--accent)" strokeWidth={2} dot={false} />
-        </LineChart>
-      </ResponsiveContainer>
+      <div style={{ padding: '16px', fontSize: '12px', color: 'var(--text-tertiary)', fontFamily: 'ui-monospace, monospace' }}>
+        No numeric columns — chart unavailable for this result set.
+      </div>
     )
   }
 
-  if (chartType === 'scatter' && numericKeys.length >= 2) {
+  const xKey = stringKeys[0] || keys[0]
+  const chartData = coerced.slice(0, 20)
+  const axisProps = {
+    tick: { fill: 'var(--text-tertiary)', fontSize: 10 },
+    axisLine: false,
+    tickLine: false,
+  }
+
+  const isDateAxis = DATE_KEYS.some((d) => xKey.toLowerCase().includes(d))
+  const isMultiMetric = numericKeys.length >= 3
+
+  if (isDateAxis || isMultiMetric) {
+    if (isDateAxis) {
+      return (
+        <ResponsiveContainer width="100%" height={220}>
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+            <XAxis dataKey={xKey} {...axisProps} />
+            <YAxis {...axisProps} />
+            <Tooltip contentStyle={tooltipStyle} />
+            {numericKeys.map((k, i) => (
+              <Line key={k} type="monotone" dataKey={k} stroke={BAR_COLORS[i % BAR_COLORS.length]} strokeWidth={2} dot={false} />
+            ))}
+            {numericKeys.length > 1 && <Legend wrapperStyle={{ fontSize: 11 }} />}
+          </LineChart>
+        </ResponsiveContainer>
+      )
+    }
     return (
       <ResponsiveContainer width="100%" height={220}>
-        <ScatterChart>
+        <BarChart data={chartData} barSize={18}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-          <XAxis dataKey={numericKeys[0]} name={numericKeys[0]} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} />
-          <YAxis dataKey={numericKeys[1]} name={numericKeys[1]} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} />
+          <XAxis dataKey={xKey} {...axisProps} />
+          <YAxis {...axisProps} />
           <Tooltip contentStyle={tooltipStyle} />
-          <Scatter data={chartData} fill="var(--accent)" />
-        </ScatterChart>
+          <Legend wrapperStyle={{ fontSize: 11 }} />
+          {numericKeys.map((k, i) => (
+            <Bar key={k} dataKey={k} fill={BAR_COLORS[i % BAR_COLORS.length]} radius={[4, 4, 0, 0]} />
+          ))}
+        </BarChart>
       </ResponsiveContainer>
     )
   }
@@ -89,10 +133,10 @@ function ResultChart({ data, chartType }) {
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={chartData} barSize={28}>
         <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
-        <XAxis dataKey={labelKey} tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
-        <YAxis tick={{ fill: 'var(--text-tertiary)', fontSize: 10 }} axisLine={false} tickLine={false} />
+        <XAxis dataKey={xKey} {...axisProps} />
+        <YAxis {...axisProps} />
         <Tooltip contentStyle={tooltipStyle} />
-        <Bar dataKey={valueKey} fill="var(--accent)" radius={[4, 4, 0, 0]} />
+        <Bar dataKey={numericKeys[0]} fill="var(--accent)" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -293,7 +337,7 @@ export default function QueryLab() {
                 <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '12px' }}>
                   Visualization
                 </div>
-                <ResultChart data={result.results} chartType={result.chart_type} />
+                <ResultChart data={result.results} />
               </div>
             )}
 
