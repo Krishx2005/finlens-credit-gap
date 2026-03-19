@@ -86,7 +86,6 @@ CHART_TYPE: bar"""
 
 
 def _validate_sql(sql: str) -> tuple[bool, str]:
-    """Validate generated SQL for safety."""
     sql_upper = sql.upper()
     for kw in BLOCKED_KEYWORDS:
         if re.search(rf"\b{kw}\b", sql_upper):
@@ -95,6 +94,9 @@ def _validate_sql(sql: str) -> tuple[bool, str]:
     if not sql_upper.strip().startswith("SELECT"):
         return False, "SQL must start with SELECT"
 
+    if "FROM" not in sql_upper:
+        return False, "SQL missing FROM clause"
+
     if len(sql) > 3000:
         return False, "SQL query too long (max 3000 chars)"
 
@@ -102,12 +104,12 @@ def _validate_sql(sql: str) -> tuple[bool, str]:
 
 
 def _extract_sql_and_explanation(response_text: str) -> tuple[str, str, str]:
-    """Parse Claude's response into SQL, explanation, and chart type."""
     lines = response_text.strip().split("\n")
 
     sql_lines = []
     explanation_lines = []
     chart_type = "table"
+    in_sql = False
     in_explanation = False
 
     for line in lines:
@@ -115,11 +117,17 @@ def _extract_sql_and_explanation(response_text: str) -> tuple[str, str, str]:
         if stripped.upper().startswith("CHART_TYPE:"):
             chart_type = stripped.split(":", 1)[1].strip().lower()
             continue
-        if not sql_lines and stripped.upper().startswith("SELECT"):
+        # Strip markdown code fences
+        if stripped.startswith("```"):
+            continue
+        if not in_sql and stripped.upper().startswith("SELECT"):
+            in_sql = True
             sql_lines.append(stripped)
-            in_explanation = False
-        elif sql_lines and not in_explanation and stripped == "":
-            in_explanation = True
+        elif in_sql and not in_explanation:
+            if stripped == "":
+                in_explanation = True
+            else:
+                sql_lines.append(stripped)
         elif in_explanation and stripped:
             explanation_lines.append(stripped)
 
@@ -161,25 +169,41 @@ def query_with_claude(question: str, db_session) -> dict:
     try:
         import anthropic
         client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model="claude-sonnet-4-6",
-            max_tokens=1024,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": question}],
-        )
-        response_text = message.content[0].text
+
+        def _call_claude(messages):
+            return client.messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=2048,
+                system=SYSTEM_PROMPT,
+                messages=messages,
+            ).content[0].text
+
+        response_text = _call_claude([{"role": "user", "content": question}])
     except Exception as exc:
         logger.warning("Claude API call failed: %s", exc)
         return _mock_nl_response(question)
 
     sql, explanation, chart_type = _extract_sql_and_explanation(response_text)
 
+    # If FROM is missing the response was likely truncated — retry once with a stricter prompt
+    if not sql or "FROM" not in sql.upper():
+        logger.warning("SQL missing FROM clause, retrying with stricter prompt")
+        try:
+            retry_text = _call_claude([
+                {"role": "user", "content": question},
+                {"role": "assistant", "content": response_text},
+                {"role": "user", "content": "Your SQL was incomplete — it was missing the FROM clause. Rewrite the complete SQL query on a single line starting with SELECT and including FROM, WHERE (if needed), GROUP BY (if needed), ORDER BY, and LIMIT."},
+            ])
+            sql, explanation, chart_type = _extract_sql_and_explanation(retry_text)
+        except Exception as exc:
+            logger.warning("Retry failed: %s", exc)
+
     if not sql:
         return {
             "question": question,
             "sql": "",
             "results": [],
-            "explanation": "Could not extract a valid SQL query from the response.",
+            "explanation": "Could not generate a valid SQL query for this question.",
             "chart_type": "table",
             "cached": False,
         }
