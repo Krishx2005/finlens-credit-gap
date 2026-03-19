@@ -196,7 +196,12 @@ function exportCsv(data) {
 
 export default function QueryLab() {
   const [question, setQuestion] = useState('')
-  const [result, setResult] = useState(null)
+  const [results, setResults] = useState([])
+  const [sql, setSql] = useState('')
+  const [explanation, setExplanation] = useState('')
+  const [chartType, setChartType] = useState('bar')
+  const [cached, setCached] = useState(false)
+  const [hasResult, setHasResult] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [examples, setExamples] = useState([])
@@ -212,12 +217,24 @@ export default function QueryLab() {
     if (!text.trim()) return
     setQuestion(text)
     setError('')
-    setResult(null)
+    setHasResult(false)
+    setResults([])
+    setSql('')
+    setExplanation('')
     setLoading(true)
     try {
       const res = await runQuery({ question: text })
-      setResult(res)
+      console.log('API response:', res)
+      console.log('results array:', res.results)
+      console.log('results length:', res.results?.length)
+      setResults(res.results || [])
+      setSql(res.sql || '')
+      setExplanation(res.explanation || '')
+      setChartType(res.chart_type || 'bar')
+      setCached(res.cached || false)
+      setHasResult(true)
     } catch (err) {
+      console.error('Query error:', err)
       setError(err.response?.data?.detail || err.message || 'Query failed')
     } finally {
       setLoading(false)
@@ -315,13 +332,13 @@ export default function QueryLab() {
           </div>
         )}
 
-        {result && !loading && (
+        {hasResult && !loading && (
           <div className="glass-card" style={{ borderRadius: '20px', padding: '24px', marginBottom: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
               <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
                 Analysis
               </div>
-              {result.cached && (
+              {cached && (
                 <span style={{ padding: '2px 10px', background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.08)', borderRadius: '999px', fontSize: '11px', color: 'var(--text-tertiary)', fontFamily: 'ui-monospace, monospace' }}>
                   ↩ cached
                 </span>
@@ -329,36 +346,51 @@ export default function QueryLab() {
             </div>
 
             <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: '24px' }}>
-              {result.explanation}
+              {explanation}
             </p>
 
-            {result.results?.length > 0 && (
-              <div style={{ marginBottom: '24px' }}>
-                <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '12px' }}>
-                  Visualization
+            {results.length > 0 && (() => {
+              const chartData = coerceNumeric(results.slice(0, 15))
+              const keys = Object.keys(chartData[0])
+              const xKey = keys[0]
+              const yKey = keys.find((k) => typeof chartData[0][k] === 'number') || keys[1]
+              console.log('Chart keys — x:', xKey, 'y:', yKey, 'sample row:', chartData[0])
+              return (
+                <div style={{ marginBottom: '24px' }}>
+                  <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)', marginBottom: '12px' }}>
+                    Visualization
+                  </div>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey={xKey} tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip contentStyle={tooltipStyle} />
+                      <Bar dataKey={yKey} fill="#0071e3" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </div>
-                <ResultChart data={result.results} />
-              </div>
-            )}
+              )
+            })()}
 
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
                 <div style={{ fontSize: '11px', fontFamily: 'ui-monospace, monospace', letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--text-tertiary)' }}>
-                  Results ({result.results?.length ?? 0} rows)
+                  Results ({results.length} rows)
                 </div>
-                {result.results?.length > 0 && (
+                {results.length > 0 && (
                   <button
-                    onClick={() => exportCsv(result.results)}
+                    onClick={() => exportCsv(results)}
                     style={{ fontSize: '12px', fontFamily: 'ui-monospace, monospace', color: 'var(--accent)', background: 'none', border: '1px solid rgba(0,113,227,0.25)', borderRadius: '8px', padding: '4px 12px', cursor: 'pointer', transition: 'all 0.15s' }}
                   >
                     Export CSV ↓
                   </button>
                 )}
               </div>
-              <ResultTable data={result.results} />
+              <ResultTable data={results} />
             </div>
 
-            <SqlBlock sql={result.sql} />
+            <SqlBlock sql={sql} />
           </div>
         )}
 
