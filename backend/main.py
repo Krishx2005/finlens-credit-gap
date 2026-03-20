@@ -63,19 +63,17 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-allowed_origins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    os.getenv("FRONTEND_URL", ""),
-]
-allowed_origins = [o for o in allowed_origins if o]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origins=[
+        "https://finlens-credit-gap.vercel.app",
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "*",
+    ],
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
-    allow_headers=["Content-Type", "Authorization"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 from routes.scores import router as scores_router
