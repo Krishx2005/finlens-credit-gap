@@ -14,7 +14,8 @@ from sqlalchemy.pool import NullPool
 DATA_DIR = Path(__file__).parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
-DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATA_DIR}/finlens.db")
+DATABASE_PATH = Path(__file__).parent / "finlens.db"
+DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite:///{DATABASE_PATH}")
 
 engine = create_engine(
     DATABASE_URL,
